@@ -9,7 +9,16 @@ files = os.listdir("input")
 if not files:
     print("Error: No files found in input folder.")
     exit()
+
 first_file = files[0]
+
+video_extensions = (".mp4", ".mkv", ".avi", ".mov", ".webm")
+
+if not first_file.endswith(video_extensions):
+    print("Error: Input file is not a supported video.")
+    exit()
+
 video_path = os.path.join("input", first_file)
+
 
 extract_frames(video_path)
