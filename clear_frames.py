@@ -1,7 +1,7 @@
 import os
 
-def clear_frames(folder):
-    files = os.listdir(folder)
+def clear_frames():
+    files = os.listdir("frames")
     for filename in files:
-        full_path = os.path.join(folder, filename)
+        full_path = os.path.join("frames", filename)
         os.remove(full_path)
