@@ -14,7 +14,7 @@ first_file = files[0]
 
 video_extensions = (".mp4", ".mkv", ".avi", ".mov", ".webm")
 
-if not first_file.endswith(video_extensions):
+if not first_file.lower().endswith(video_extensions):
     print("Error: Input file is not a supported video.")
     exit()
 
