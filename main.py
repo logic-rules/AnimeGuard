@@ -1,16 +1,16 @@
 import os
 from extract_frames import extract_frames # frame extraction
-from clear_frames import clear_frames # frame clearance
-
-
+from clear_frames import clear_frames
 clear_frames()
 
 files = os.listdir("input")
 if not files:                  # i.e. if line 8... previous line is just NOT!
     print("Error: No files found in input folder.")
-    exit()
+    exit() # MANDATORY FOR IF THERES NO INPUT IN input
+print("All files in input:", files)
 
 first_file = files[0]     # (we want just ONE SINGLE FILE per once to proceed)
+print("First file:", first_file)
 
 video_extensions = (".mp4", ".mkv", ".avi", ".mov", ".webm")
 
