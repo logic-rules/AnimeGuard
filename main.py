@@ -1,6 +1,7 @@
 import os
 from extract_frames import extract_frames # frame extraction
 from clear_frames import clear_frames
+from clip_pass1 import classify_frames
 clear_frames()
 
 files = os.listdir("input")
@@ -22,3 +23,6 @@ video_path = os.path.join("input", first_file)
 
 
 extract_frames(video_path)
+
+
+flagged_frames = classify_frames()
