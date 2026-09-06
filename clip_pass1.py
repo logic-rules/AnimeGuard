@@ -1,6 +1,7 @@
 import glob
 import os
 import time
+import numpy as np
 from PIL import Image
 import torch
 from transformers import CLIPModel, CLIPProcessor
@@ -48,6 +49,12 @@ SUGGESTIVE_LABELS = [
 
 ALL_LABELS = SAFE_LABELS + SUGGESTIVE_LABELS
 
+def get_image_entropy(img):
+    gray_image = np.array(img.convert("L"))
+    hist, _ = np.histogram(gray_image, bins=256, range=(0, 256))
+    hist_norm = hist / hist.sum()
+    hist_norm = hist_norm[hist_norm > 0]
+    return -np.sum(hist_norm * np.log2(hist_norm))  # the formula for getting image entropy
 
 print("Loading CLIP...")
 clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -84,6 +91,8 @@ for count, path in enumerate(frames, start=1): # a normal loop, but with an auto
     frame_name = os.path.basename(path) # to print the raw file name instead of the full path (at 2 places)
     image = Image.open(path).convert("RGB") # "method chaining" 1 --> open and decode image file. 2 --> converts to RGB color mode. i.e. two instances. 1st temp, 2nd perm. Only the second instance is stored in 'image'
 
+    entropy = get_image_entropy(image)
+    dynamic_abs_thresh = BASE_ABS_THRESHOLD + (0.08 if entropy < 5.2 else 0.0)
 
     image_inputs = clip_processor(images=image, return_tensors="pt")
 
@@ -104,7 +113,7 @@ for count, path in enumerate(frames, start=1): # a normal loop, but with an auto
     max_suggestive = probs[len(SAFE_LABELS) :].max().item()
     max_safe = probs[: len(SAFE_LABELS)].max().item()
 
-    is_candidate = (max_suggestive > BASE_ABS_THRESHOLD) and (
+    is_candidate = (max_suggestive > dynamic_abs_thresh) and (
         (max_suggestive - max_safe) > MARGIN_THRESHOLD
     )
 
@@ -117,7 +126,7 @@ for count, path in enumerate(frames, start=1): # a normal loop, but with an auto
 
     print(
         f"[{count}/{total}] {frame_name}: sug={max_suggestive:.2f}"
-        f" safe={max_safe:.2f} {tag} | flagged:"
+        f" safe={max_safe:.2f} (ent={entropy:.1f}) {tag} | flagged:"
         f" {len(flagged)} | ETA: {(total - count) * avg:.0f}s",
         flush=True,
     )
