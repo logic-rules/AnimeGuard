@@ -8,6 +8,9 @@ from transformers import CLIPModel, CLIPProcessor
 
 FRAMES_FOLDER = "frames"
 
+NUM_THREADS = 8
+torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
+
 SAFE_LABELS = [
     "an anime character's face in close-up during dialogue",
     "an anime character fully clothed in casual daily wear",
@@ -15,6 +18,7 @@ SAFE_LABELS = [
     "an anime character in winter coat or formal jacket",
     "an anime action scene with motion blur or fighting effects",
     "an anime background landscape or scenery with no characters",
+    "an anime character eating, drinking, or holding food",
     "an anime character sitting or standing normally in a room",
     "a crowd or group of anime characters standing together",
     "an anime character crying or showing intense facial emotion",
@@ -25,17 +29,40 @@ SAFE_LABELS = [
     "a male anime character with black feathered demon or angel wings",
     "an anime scene with heavy fog, mist, dark blue haze, or desaturated lighting",
     "a male anime character with bare shoulders or a shirtless male torso",
+    "an anime character kneeling or prostrating on a tatami mat in traditional pose",
+    "a girl in a bright white dress with feathers flowing around her",
+    "a phone on a tanami mat",
+    "two men standing in front of a window",
+    "two men standing beside each other",
+    "a monster or demon wearing an armor and holding a sword in hand",
+    "a cardboard box",
+    "a trash bag",
+    "a hooded anime mage or wizard character",
+    "a black colored bird or a crow or any other normal animal or bird",
+    "a cute young anime toddler playing with another anime character",
+    "a cute toddler anime girl smiling or blushing",
     "anime characters seen from behind a glass window, back view",
     "an anime demon lord or a muscular monster with horns",
+    "an anime monster holding a sword and wearing armor strap",
+    "an anime character doing formal japanese prostration or kneeling and bowing deeply",
+    "a male or any anime character wearing a work apron",
     "anime characters leaning in talking, over the shoulder view",
     "an anime character lying sideways or his head collapsed on the ground",
     "heavily blurred image, censor blur, out of focus frame",
+    "a little dark bird anime character lying down sleeping or resting",
+    "a bird",
+    "an anime character in a kitchen apron",
+    "a doorbell or any other household electronics",
+    "a nameplate placed on the doorway of a house",
 
 ]
 
 SUGGESTIVE_LABELS = [
     "a female anime character wearing an explicit bikini or swimsuit at a pool",
     "a female anime character in bare underwear, bra, or lingerie",
+    "a female anime character with revealing butt cheeks",
+    "a view of an anime girl focusing on her buttocks",
+    "a shot taken from floor level looking up at an anime character emphasizing the curves of the butt and waist",
     "a shot focused directly on female exposed chest cleavage",
     "a female anime character with fully exposed bare stomach skin and midriff",
     "an upskirt camera angle explicitly showing female underwear under a skirt",
@@ -44,7 +71,11 @@ SUGGESTIVE_LABELS = [
     "two anime characters kissing on the lips in a romantic scene",
     "two anime characters lying together in an intimate romantic embrace",
     "a female anime character in revealing nightwear or sheer sleepwear",
+    "a shot of a crowd having anime characters wearing exposing beach attire",
     "a female anime character wearing an explicit attire designed to expose chest cleavage",
+    "a female anime character wearing a loose short-sleeved top with a defined bust outline",
+    "a female anime character wearing a tightly-fitted shirt that emphasizes her bust and waistline",
+    "a female anime character flexing her chest by pushing it forward",
 ]
 
 ALL_LABELS = SAFE_LABELS + SUGGESTIVE_LABELS
