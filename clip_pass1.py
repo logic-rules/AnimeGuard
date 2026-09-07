@@ -9,12 +9,13 @@ from transformers import CLIPModel, CLIPProcessor
 BASE_ABS_THRESHOLD = 0.40
 MARGIN_THRESHOLD = 0.12
 
-NUM_THREADS = 8
+NUM_THREADS = 10
 torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
 
 SAFE_LABELS = [
     "an anime character's face in close-up during dialogue",
     "an anime character fully clothed in casual daily wear",
+    "a crowd of anime characters wearing modest attire and standing outside a normal building",
     "an anime character in a standard school uniform",
     "an anime character in winter coat or formal jacket",
     "an anime action scene with motion blur or fighting effects",
@@ -23,7 +24,7 @@ SAFE_LABELS = [
     "an anime character sitting or standing normally in a room",
     "a crowd or group of anime characters standing together",
     "an anime character crying or showing intense facial emotion",
-    "an anime character with long hair",
+    "an anime character with long hair or face covered in hair",
     "an anime character wearing a standard fully-covered t-shirt or hoodie",
     "dramatic lighting, shadows, or color highlights on clothing",
     "a green male demon or monster with horns, armor, or holding a sword",
@@ -38,6 +39,11 @@ SAFE_LABELS = [
     "a monster or demon wearing an armor and holding a sword in hand",
     "a cardboard box",
     "a trash bag",
+    "a fire alarm or other electronic appliances",
+    "an empty corner of a house",
+    "normal tiles floor of a building or house",
+    "a birdcage for pets",
+    "normal curtains and windows",
     "a hooded anime mage or wizard character",
     "a black colored bird or a crow or any other normal animal or bird",
     "a cute young anime toddler playing with another anime character",
@@ -47,14 +53,22 @@ SAFE_LABELS = [
     "an anime monster holding a sword and wearing armor strap",
     "an anime character doing formal japanese prostration or kneeling and bowing deeply",
     "a male or any anime character wearing a work apron",
+    "a cooking tool or other appliances",
     "anime characters leaning in talking, over the shoulder view",
-    "an anime character lying sideways or his head collapsed on the ground",
+    "an anime character with head collapsed on the ground",
     "heavily blurred image, censor blur, out of focus frame",
-    "a little dark bird anime character lying down sleeping or resting",
-    "a bird",
+    "a little dark bird anime character sleeping or resting",
+    "a bird character like crow, parrot, pigeon",
     "an anime character in a kitchen apron",
+    "a sink",
     "a doorbell or any other household electronics",
-    "a nameplate placed on the doorway of a house",
+    "a nightlight or torch",
+    "a nameplate placed on the door or outside of a house or building",
+    "ordinary walls of a house or building",
+    "outside view of a normal building with trees",
+    "a male anime character's head or hair",
+    "two anime characters passing by each other",
+    "a doorway or a hallway",
 
 ]
 
@@ -63,7 +77,7 @@ SUGGESTIVE_LABELS = [
     "a female anime character in bare underwear, bra, or lingerie",
     "a female anime character with revealing butt cheeks",
     "a view of an anime girl focusing on her buttocks",
-    "a shot taken from floor level looking up at an anime character emphasizing the curves of the butt and waist",
+    "a shot taken from floor level looking at a female anime character emphasizing the curves of the butt and waist",
     "a shot focused directly on female exposed chest cleavage",
     "a female anime character with fully exposed bare stomach skin and midriff",
     "an upskirt camera angle explicitly showing female underwear under a skirt",
@@ -77,6 +91,7 @@ SUGGESTIVE_LABELS = [
     "a female anime character wearing a loose short-sleeved top with a defined bust outline",
     "a female anime character wearing a tightly-fitted shirt that emphasizes her bust and waistline",
     "a female anime character flexing her chest by pushing it forward",
+    "a female anime character with highly revealing body and hips in a tight underwear",
 ]
 
 ALL_LABELS = SAFE_LABELS + SUGGESTIVE_LABELS
