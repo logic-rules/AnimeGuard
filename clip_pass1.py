@@ -112,16 +112,19 @@ def get_image_entropy(image):
     return -np.sum(hist_norm * np.log2(hist_norm))  # the formula for getting image entropy
 
 
-def dedupe_flagged(flagged):
+
+def dedupe_flagged(flagged):    # used later for deduplication
     deduped = []
-    for path, features in flagged:
-        if deduped:
+    for path, features in flagged:  # for each. (a reminder uh nvm)
+        if deduped: # checks if empty or not. skips for first frame.
             prev_path, prev_features = deduped[-1]
             similarity = (features @ prev_features.t()).item()
             if similarity > DEDUPE_SIMILARITY_THRESHOLD:
-                continue
+                continue  # if above line is true, it doesnt append the frame, i.e, removing it. mission accomplished.
         deduped.append((path, features))
     return deduped
+
+
 
 def classify_frames():
     print("Loading CLIP...")
@@ -183,7 +186,7 @@ def classify_frames():
         )
 
         if is_candidate:
-            flagged.append((path, image_features)) #  !!!!
+            flagged.append((path, image_features)) #  !!!!  both the path n the 1D vector.  !!!!
 
         elapsed = time.time() - start
         avg = elapsed / count
@@ -197,11 +200,11 @@ def classify_frames():
         )
 
     print(f"\nDone in {time.time() - start:.1f}s.")
-    print(f"{len(flagged)}/{total} flagged as candidates before dedup.")
+    print(f"{len(flagged)}/{total} flagged as candidates BEFORE DEDUP")
 
     deduped = dedupe_flagged(flagged)
-    flagged_paths = [path for path, _ in deduped]
+    flagged_after_dedup = [os.path.basename(path) for path, _ in deduped]
 
-    print(f"{len(flagged_paths)}/{len(flagged)} remain after dedup.")
-    print("Flagged files:", flagged_paths)
-    return flagged_paths
+    print(f"{len(flagged_after_dedup)}/{len(flagged)} remain AFTER DEDUP")
+    print("Flagged files:", flagged_after_dedup)
+    return flagged_after_dedup
