@@ -34,7 +34,7 @@ SAFE_LABELS = [
     "a male anime character with bare shoulders or a shirtless male torso",
     "an anime character kneeling or prostrating on a tatami mat in traditional pose",
     "a girl in a bright white dress with feathers flowing around her",
-    "a phone on a tanami mat",
+    "a phone on a tatami mat",
     "two men standing in front of a window",
     "two men standing beside each other",
     "a monster or demon wearing an armor and holding a sword in hand",
