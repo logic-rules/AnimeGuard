@@ -202,9 +202,13 @@ def classify_frames():
     print(f"\nDone in {time.time() - start:.1f}s.")
     print(f"{len(flagged)}/{total} flagged as candidates BEFORE DEDUP")
 
-    deduped = dedupe_flagged(flagged)
-    flagged_after_dedup = [os.path.basename(path) for path, _ in deduped]
 
-    print(f"{len(flagged_after_dedup)}/{len(flagged)} remain AFTER DEDUP")
-    print("Flagged files:", flagged_after_dedup)
-    return flagged_after_dedup
+    deduped = dedupe_flagged(flagged)
+    fullpath_flagged_after_dedup = [path for path, _ in deduped]  # we need full path string for tier 2
+
+    display_flagged_after_dedup = [os.path.basename(path) for path, _ in deduped] # for print lolz
+    print(f"{len(display_flagged_after_dedup)}/{len(flagged)} remain AFTER DEDUP")
+    print("Flagged files:", display_flagged_after_dedup)
+
+
+    return fullpath_flagged_after_dedup #yepz
