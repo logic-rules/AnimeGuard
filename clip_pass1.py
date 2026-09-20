@@ -120,7 +120,7 @@ def dedupe_flagged(flagged):    # used later for deduplication
             prev_path, prev_features = deduped[-1]
             similarity = (features @ prev_features.t()).item()
             if similarity > DEDUPE_SIMILARITY_THRESHOLD:
-                continue  # if above line is true, it doesnt append the frame, i.e, removing it. mission accomplished.
+                continue  # if above line is true, it doesn't append the frame, i.e, removing it. mission accomplished.
         deduped.append((path, features))
     return deduped
 
