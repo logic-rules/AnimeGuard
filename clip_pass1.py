@@ -8,6 +8,7 @@ from transformers import CLIPModel, CLIPProcessor
 
 BASE_ABS_THRESHOLD = 0.40
 MARGIN_THRESHOLD = 0.12
+DEDUPE_SIMILARITY_THRESHOLD = 0.90 # dedup
 
 NUM_THREADS = 10
 torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
@@ -38,6 +39,16 @@ SAFE_LABELS = [
     "two men standing beside each other",
     "a monster or demon wearing an armor and holding a sword in hand",
     "a cardboard box",
+    "a sink",
+    "a doorway or a hallway",
+    "stairs or ladder",
+    "a rice cooker",
+    "sunlight",
+    "a bed or a futon",
+    "a wooden sword or stick",
+    "a piece of cloth with a design",
+    "a wall with a hole",
+    "a cooking appliance",
     "a trash bag",
     "a fire alarm or other electronic appliances",
     "an empty corner of a house",
@@ -53,22 +64,19 @@ SAFE_LABELS = [
     "an anime monster holding a sword and wearing armor strap",
     "an anime character doing formal japanese prostration or kneeling and bowing deeply",
     "a male or any anime character wearing a work apron",
-    "a cooking tool or other appliances",
     "anime characters leaning in talking, over the shoulder view",
     "an anime character with head collapsed on the ground",
     "heavily blurred image, censor blur, out of focus frame",
     "a little dark bird anime character sleeping or resting",
     "a bird character like crow, parrot, pigeon",
-    "an anime character in a kitchen apron",
-    "a sink",
+    "an anime character in a kitchen or cooking apron",
     "a doorbell or any other household electronics",
     "a nightlight or torch",
-    "a nameplate placed on the door or outside of a house or building",
+    "a nameplate placed on the door way of a house",
     "ordinary walls of a house or building",
     "outside view of a normal building with trees",
     "a male anime character's head or hair",
     "two anime characters passing by each other",
-    "a doorway or a hallway",
 
 ]
 
@@ -91,7 +99,7 @@ SUGGESTIVE_LABELS = [
     "a female anime character wearing a loose short-sleeved top with a defined bust outline",
     "a female anime character wearing a tightly-fitted shirt that emphasizes her bust and waistline",
     "a female anime character flexing her chest by pushing it forward",
-    "a female anime character with highly revealing body and hips in a tight underwear",
+    "a female anime character with highly revealing legs and hips wearing a tight underwear",
 ]
 
 ALL_LABELS = SAFE_LABELS + SUGGESTIVE_LABELS
@@ -103,6 +111,17 @@ def get_image_entropy(image):
     hist_norm = hist_norm[hist_norm > 0]
     return -np.sum(hist_norm * np.log2(hist_norm))  # the formula for getting image entropy
 
+
+def dedupe_flagged(flagged):
+    deduped = []
+    for path, features in flagged:
+        if deduped:
+            prev_path, prev_features = deduped[-1]
+            similarity = (features @ prev_features.t()).item()
+            if similarity > DEDUPE_SIMILARITY_THRESHOLD:
+                continue
+        deduped.append((path, features))
+    return deduped
 
 def classify_frames():
     print("Loading CLIP...")
@@ -164,7 +183,7 @@ def classify_frames():
         )
 
         if is_candidate:
-            flagged.append(frame_name)
+            flagged.append((path, image_features)) #  !!!!
 
         elapsed = time.time() - start
         avg = elapsed / count
@@ -177,8 +196,12 @@ def classify_frames():
             flush=True,
         )
 
+    print(f"\nDone in {time.time() - start:.1f}s.")
+    print(f"{len(flagged)}/{total} flagged as candidates before dedup.")
 
-    print(f"\nDone in {time.time() - start:.1f}s.") # used 3 times in the whole script. check it out!
-    print(f"{len(flagged)}/{total} flagged as candidates.")
-    print("Flagged files:", flagged)
-    return flagged
+    deduped = dedupe_flagged(flagged)
+    flagged_paths = [path for path, _ in deduped]
+
+    print(f"{len(flagged_paths)}/{len(flagged)} remain after dedup.")
+    print("Flagged files:", flagged_paths)
+    return flagged_paths
