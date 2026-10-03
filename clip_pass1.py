@@ -126,7 +126,7 @@ def dedupe_flagged(flagged):    # used later for deduplication
 
 
 
-def classify_frames():
+def flag_clip():
     print("Loading CLIP...")
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -208,7 +208,7 @@ def classify_frames():
 
     display_flagged_after_dedup = [os.path.basename(path) for path, _ in deduped] # for print lolz
     print(f"{len(display_flagged_after_dedup)}/{len(flagged)} remain AFTER DEDUP")
-    print("Flagged files:", display_flagged_after_dedup)
+    print("Flagged files: ", display_flagged_after_dedup)
 
 
     return fullpath_flagged_after_dedup #yepz
