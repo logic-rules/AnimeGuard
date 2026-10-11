@@ -87,9 +87,8 @@ def flag_clip():
     with torch.inference_mode():
         # pass through text model then project to latent space
         text_outputs = clip_model.text_model(**text_inputs) # a whole ahh custom object
-        pooled_text = text_outputs.pooler_output # a hidden part of that custom object, a tensor (2D) by itself, made of many summary vectors (1D tensors), one summary vector per label
-        text_embeds = clip_model.text_projection(pooled_text) # turns the ([no. of labels],768) shape into ([no. of labels],512) to be able to put in latent comparable space of labels-image comparison
-        # shape: (xx,512)
+        pooled_text = text_outputs.pooler_output # shape: (num_labels, 512). it's a hidden part of the above-mentioned custom object, a 2D tensor by itself made of many summary vectors (1D tensors), one summary vector per label.
+        text_embeds = clip_model.text_projection(pooled_text) # 512 --> 512. realigns the text (1D summary tensors) vectors and projects them in latent comparable space of labels-image comparison
         text_features = F.normalize(text_embeds, p=2, dim=-1) # removes the raw size (magnitude) and only allow what is needed (direction/meaning, nothing else)
 
     print("Text embeddings cached successfully.\n")
@@ -113,9 +112,8 @@ def flag_clip():
         with torch.inference_mode():
             # pass through vision model then project to latent space
             image_outputs = clip_model.vision_model(**image_inputs)
-            pooled_image = image_outputs.pooler_output
-            image_embeds = clip_model.visual_projection(pooled_image)
-            # shape: (1, 512)
+            pooled_image = image_outputs.pooler_output # shape: (1, 768). a 2D tensor holding the 1 summary vector for the ONE frame.
+            image_embeds = clip_model.visual_projection(pooled_image) # projection shrinks the tensor shape from (1,768) to (1, 512) so it (image tensor) can be projected in "latent comparable space of labels-image comparison"
             image_features = F.normalize(image_embeds, p=2, dim=-1)
 
 
@@ -137,8 +135,8 @@ def flag_clip():
         tag = "🚩" if is_candidate else "safe"
 
         print(
-            f"[{count}/{total}] {frame_name}: sug_cos={max_suggestive_cos:.2f} "
-            f"safe_cos={max_safe_cos:.2f} margin={margin:+.3f} (ent={entropy:.1f}) {tag} | "
+            f"[{count}/{total}] {frame_name}: sug_cos={max_suggestive_cos:.3f} "
+            f"safe_cos={max_safe_cos:.3f} margin={margin:+.3f} (ent={entropy:.1f}) {tag} | "
             f"flagged: {len(flagged)} | ETA: {(total - count) * avg:.0f}s",
             flush=True,
         )
