@@ -4,6 +4,7 @@ import time
 import numpy as np
 from PIL import Image
 import torch
+import torch.nn.functional as F
 from transformers import CLIPModel, CLIPProcessor
 
 # minimum cosine similarity for a frame to be considered a suggestive prompt
@@ -14,7 +15,7 @@ MARGIN_THRESHOLD = 0.03
 
 DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
 
-NUM_THREADS = 10
+NUM_THREADS = 6
 torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
 
 
@@ -25,7 +26,7 @@ SAFE_LABELS = [
     "a group of fully clothed anime characters standing or sitting together",
     "an anime character walking, running, sitting, or eating normally",
 
-    # specific Backgrounds & scene props
+    # specific backgrounds & scene props
     "white plastic garbage bags, trash cans, or a green protective mesh net",
     "a birdcage, cloth cover, hanging curtain, or lamp shade",
     "abstract colorful circles, dots, patterns, geometry, or anime title graphics",
@@ -36,7 +37,7 @@ SAFE_LABELS = [
 ]
 
 SUGGESTIVE_LABELS = [
-    # Directly exposed & swimwear
+    # directly exposed & swimwear
     "a female anime character wearing a swimsuit, bikini, or swimsuit top",
     "a female anime character in bare underwear, bra, or panties",
 
@@ -65,7 +66,7 @@ def dedupe_flagged(flagged): # used later for deduplication
     deduped = []
     for path, features in flagged: # for each. (a reminder uh nvm)
         if deduped: # checks if empty or not. skips for first frame.
-            prev_path, prev_features = deduped[-1]
+            _, prev_features = deduped[-1]
             similarity = (features @ prev_features.t()).item()
             if similarity > DEDUPE_SIMILARITY_THRESHOLD:
                 continue # if above line is true, it doesn't append the frame, i.e, removing it. mission accomplished.
@@ -78,11 +79,10 @@ def flag_clip():
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     clip_model.eval()
-    print("CLIP loaded.\n")
 
     # precomputing text embeddings once
     print(f"Pre-computing text embeddings for {len(ALL_LABELS)} labels...")
-    text_inputs = clip_processor(text=ALL_LABELS, return_tensors="pt", padding=True)
+    text_inputs = clip_processor(text=ALL_LABELS, return_tensors="pt", padding=True) # ts a dict consisting of input ids n stuff
 
     with torch.inference_mode():
         # pass through text model then project to latent space
@@ -90,7 +90,7 @@ def flag_clip():
         pooled_text = text_outputs.pooler_output # a hidden part of that custom object, a tensor (2D) by itself, made of many summary vectors (1D tensors), one summary vector per label
         text_embeds = clip_model.text_projection(pooled_text) # turns the ([no. of labels],768) shape into ([no. of labels],512) to be able to put in latent comparable space of labels-image comparison
         # shape: (xx,512)
-        text_features = text_embeds / text_embeds.norm(dim=-1, keepdim=True) # removes the raw size (magnitude) and only allow what is needed (direction/meaning, nothing else)
+        text_features = F.normalize(text_embeds, p=2, dim=-1) # removes the raw size (magnitude) and only allow what is needed (direction/meaning, nothing else)
 
     print("Text embeddings cached successfully.\n")
     frames = sorted(glob.glob("frames/*.jpg")) # find n sort
@@ -116,7 +116,7 @@ def flag_clip():
             pooled_image = image_outputs.pooler_output
             image_embeds = clip_model.visual_projection(pooled_image)
             # shape: (1, 512)
-            image_features = image_embeds / image_embeds.norm(dim=-1, keepdim=True)
+            image_features = F.normalize(image_embeds, p=2, dim=-1)
 
 
             # Cosine similarity matmul
