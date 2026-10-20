@@ -33,7 +33,16 @@ SAFE_LABELS = [
     "an empty anime school hallway, classroom, windows, or building corridor",
     "anime scenery, landscape, street, trees, blue sky, or clouds",
     "household furniture, table, desk, chair, room walls, or floor",
-    "a close-up shot of small inanimate objects, books, or papers"
+    "a close-up shot of small inanimate objects, books, or papers",
+
+    # junk types found in testing (by common-ing out frames into types IYKYK) <-- insane accuracy boost ggs !!!
+    "a close-up of an anime character's hair or the back of their head",
+    "a wooden stick, sword, or object in fast motion",
+    "a close-up of plain cloth, fabric, or a textured pattern",
+    "a male anime character, a boy, sitting, sleeping, or walking",
+    "a chibi super-deformed cartoon character with tiny cute proportions"
+    # "a cute chibi anime character in a funny comedic pose or falling down"
+
 ]
 
 SUGGESTIVE_LABELS = [
@@ -97,6 +106,7 @@ def flag_clip():
     print(f"Total frames: {total}")
 
     flagged = []
+    scores = {}
     start = time.time() # timestamp captured once, right before the loop begins
 
     for count, path in enumerate(frames, start=1):  # a normal loop, but with an automatic counter (i.e. 2 vars instead of js 1)
@@ -124,12 +134,11 @@ def flag_clip():
         max_safe_cos = cosine_sims[: len(SAFE_LABELS)].max().item()
 
         margin = max_suggestive_cos - max_safe_cos
-
         is_candidate = (max_suggestive_cos >= dynamic_min_cos) and (margin >= dynamic_margin)
 
         if is_candidate:
             flagged.append((path, image_features)) #  !!!!  both the path n the 1D vector.  !!!!
-
+            scores[path] = margin
         elapsed = time.time() - start
         avg = elapsed / count
         tag = "🚩" if is_candidate else "safe"
@@ -147,8 +156,12 @@ def flag_clip():
     deduped = dedupe_flagged(flagged)
     fullpath_flagged_after_dedup = [path for path, _ in deduped] # we need full path string for tier 2
 
+    ranked = sorted(fullpath_flagged_after_dedup, key=lambda p: scores[p], reverse=True) # ranking mechanism which maybe useful later... (was foundation of today's testing, keeping for potential future use)
+    top20 = sorted(ranked[:20])
+    bottom20 = sorted(ranked[-20:])
+
     display_flagged_after_dedup = [os.path.basename(path) for path, _ in deduped] # for print lolz
     print(f"{len(display_flagged_after_dedup)} candidate frames remaining AFTER deduplication.")
     print("Flagged files: ", display_flagged_after_dedup)
 
-    return fullpath_flagged_after_dedup #yepz
+    return fullpath_flagged_after_dedup  # yepz
