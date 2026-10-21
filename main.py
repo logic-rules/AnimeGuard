@@ -2,7 +2,7 @@ import os
 from extract_frames import extract_frames # frame extraction
 from clear_frames import clear_frames
 from clip_pass1 import flag_clip
-from vlm_pass2 import flag_vlm
+
 clear_frames()
 
 files = os.listdir("input")
@@ -12,7 +12,6 @@ if not files:                  # i.e. if line 8... previous line is just NOT!
 print("All files in input:", files)
 
 first_file = files[0]     # (we want just ONE SINGLE FILE per once to proceed)
-print("First file:", first_file)
 
 video_extensions = (".mp4", ".mkv", ".avi", ".mov", ".webm")
 
@@ -20,14 +19,9 @@ if not first_file.lower().endswith(video_extensions): # checks extensions (and l
     print("Error: Input file is not a supported video.")
     exit()
 
+print("First file:", first_file)
 video_path = os.path.join("input", first_file)
-
 
 extract_frames(video_path)
 
-
-flagged_frames1 = flag_clip()
-
-flagged_frames2 = flag_vlm(flagged_frames1)
-
-print(flagged_frames2)
+flagged_frames = flag_clip()
