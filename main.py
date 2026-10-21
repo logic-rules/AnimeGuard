@@ -1,11 +1,14 @@
 import os
-import shutil
-from extract_frames import extract_frames # frame extraction
-from clear_dir import clear_frames, clear_flagged
+from extract_frames import extract_frames # initial frame extraction (ffmpeg) every run
+from reset_folder import reset_folder # reset frame-inhibiting folders every run
 from clip_pass1 import flag_clip
 
-clear_frames()
-clear_flagged()
+# wipe and recreate
+reset_folder("frames")
+reset_folder("flagged")
+
+# automatically create... ONLY IF IT DOESN'T ALREADY EXIST!
+os.makedirs("input", exist_ok=True)
 
 files = os.listdir("input")
 if not files:                  # i.e. if line 8... previous line is just NOT!

@@ -3,3 +3,7 @@
 frames/  
 input/ 
 /flagged/
+__pycache__/
+*.pyc
+*.json
+tests*.py
