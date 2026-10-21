@@ -41,7 +41,6 @@ SAFE_LABELS = [
     "a close-up of plain cloth, fabric, or a textured pattern",
     "a male anime character, a boy, sitting, sleeping, or walking",
     "a chibi super-deformed cartoon character with tiny cute proportions"
-    # "a cute chibi anime character in a funny comedic pose or falling down"
 
 ]
 
@@ -78,7 +77,7 @@ def dedupe_flagged(flagged): # used later for deduplication
             _, prev_features = deduped[-1]
             similarity = (features @ prev_features.t()).item()
             if similarity > DEDUPE_SIMILARITY_THRESHOLD:
-                continue # if above line is true, it doesn't append the frame, i.e, removing it. mission accomplished.
+                continue # if above line is true, it doesn't append the frame, hence removing it. mission accomplished.
         deduped.append((path, features))
     return deduped
 
@@ -106,7 +105,6 @@ def flag_clip():
     print(f"Total frames: {total}")
 
     flagged = []
-    scores = {}
     start = time.time() # timestamp captured once, right before the loop begins
 
     for count, path in enumerate(frames, start=1):  # a normal loop, but with an automatic counter (i.e. 2 vars instead of js 1)
@@ -127,7 +125,7 @@ def flag_clip():
             image_features = F.normalize(image_embeds, p=2, dim=-1)
 
 
-            # Cosine similarity matmul
+            # cosine similarity matmul:
             cosine_sims = (image_features @ text_features.t())[0]
 
         max_suggestive_cos = cosine_sims[len(SAFE_LABELS):].max().item()
@@ -137,8 +135,7 @@ def flag_clip():
         is_candidate = (max_suggestive_cos >= dynamic_min_cos) and (margin >= dynamic_margin)
 
         if is_candidate:
-            flagged.append((path, image_features)) #  !!!!  both the path n the 1D vector.  !!!!
-            scores[path] = margin
+            flagged.append((path, image_features)) #  !!!!  both the path and the 1D vector.  !!!!
         elapsed = time.time() - start
         avg = elapsed / count
         tag = "🚩" if is_candidate else "safe"
@@ -154,14 +151,10 @@ def flag_clip():
     print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
 
     deduped = dedupe_flagged(flagged)
-    fullpath_flagged_after_dedup = [path for path, _ in deduped] # we need full path string for tier 2
 
-    ranked = sorted(fullpath_flagged_after_dedup, key=lambda p: scores[p], reverse=True) # ranking mechanism which maybe useful later... (was foundation of today's testing, keeping for potential future use)
-    top20 = sorted(ranked[:20])
-    bottom20 = sorted(ranked[-20:])
+    display_flagged = [os.path.basename(path) for path, _ in deduped] # print
+    print(f"{len(display_flagged)} candidate frames remaining AFTER deduplication.")
+    print("Flagged files: ", display_flagged)
 
-    display_flagged_after_dedup = [os.path.basename(path) for path, _ in deduped] # for print lolz
-    print(f"{len(display_flagged_after_dedup)} candidate frames remaining AFTER deduplication.")
-    print("Flagged files: ", display_flagged_after_dedup)
-
-    return fullpath_flagged_after_dedup  # yepz
+    fullpath_flagged = [path for path, _ in deduped]  # full path string
+    return fullpath_flagged
