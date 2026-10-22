@@ -35,12 +35,14 @@ SAFE_LABELS = [
     "household furniture, table, desk, chair, room walls, or floor",
     "a close-up shot of small inanimate objects, books, or papers",
 
-    # junk types found in testing (by common-ing out frames into types IYKYK) <-- insane accuracy boost ggs !!!
+    # junk types found in testing (by common-ing out frames into types)
     "a close-up of an anime character's hair or the back of their head",
     "a wooden stick, sword, or object in fast motion",
     "a close-up of plain cloth, fabric, or a textured pattern",
     "a male anime character, a boy, sitting, sleeping, or walking",
-    "a chibi super-deformed cartoon character with tiny cute proportions"
+    "a chibi super-deformed cartoon character with tiny cute proportions",
+    "an anime character with large white wings",
+    "a small cute anime child or toddler"
 
 ]
 
@@ -90,7 +92,7 @@ def flag_clip():
 
     # precomputing text embeddings once
     print(f"Pre-computing text embeddings for {len(ALL_LABELS)} labels...")
-    text_inputs = clip_processor(text=ALL_LABELS, return_tensors="pt", padding=True) # ts a dict consisting of input ids n stuff
+    text_inputs = clip_processor(text=ALL_LABELS, return_tensors="pt", padding=True) # type: ignore     # ts a dict consisting of input ids n stuff
 
     with torch.inference_mode():
         # pass through text model then project to latent space
@@ -100,7 +102,7 @@ def flag_clip():
         text_features = F.normalize(text_embeds, p=2, dim=-1) # removes the raw size (magnitude) and only allow what is needed (direction/meaning, nothing else)
 
     print("Text embeddings cached successfully.\n")
-    frames = sorted(glob.glob("frames/*.jpg")) # find n sort
+    frames = sorted(glob.glob("frames/*.jpg")) # find and sort
     total = len(frames)
     print(f"Total frames: {total}")
 
@@ -115,7 +117,7 @@ def flag_clip():
         dynamic_min_cos = MIN_SUGGESTIVE_COSINE + (0.010 if entropy < 5.0 else 0.0)
         dynamic_margin = MARGIN_THRESHOLD + (0.005 if entropy < 5.0 else 0.0)
 
-        image_inputs = clip_processor(images=image, return_tensors="pt")
+        image_inputs = clip_processor(images=image, return_tensors="pt") # type: ignore
 
         with torch.inference_mode():
             # pass through vision model then project to latent space
