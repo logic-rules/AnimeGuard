@@ -41,7 +41,6 @@ SAFE_LABELS = [
     "a close-up of plain cloth, fabric, or a textured pattern",
     "a male anime character, a boy, sitting, sleeping, or walking",
     "a chibi super-deformed cartoon character with tiny cute proportions",
-    "an anime character with large white wings",
     "a small cute anime child or toddler"
 
 ]
