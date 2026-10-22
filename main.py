@@ -1,5 +1,6 @@
 import os
 import shutil
+import json
 from extract_frames import extract_frames # initial frame and timestamps extraction (ffmpeg) every run
 from reset_folder import reset_folder # reset the two frame-inhibiting folders every run
 from clip_pass1 import flag_clip
@@ -32,6 +33,7 @@ timestamps = extract_frames(video_path)
 
 flagged_frames = sorted(flag_clip())
 
+tflog = []
 for path in flagged_frames:
     shutil.copy(path, "flagged") # type: ignore     # (copies the list into the "flagged" dir)
 
@@ -40,6 +42,14 @@ for path in flagged_frames:
     frame = os.path.basename(path)   # type: ignore
     number = int(frame[6:10])
     org_sec = float(timestamps[number - 1])
+
     minutes = int(org_sec // 60)
     secs = int(org_sec % 60)
-    print(f"{minutes:02d}:{secs:02d}")
+    time_str = f"{minutes:02d}:{secs:02d}"
+
+    tflog.append({
+        "frame": frame,
+        "time": time_str
+    })
+with open("flagged.json", "w", encoding = "utf-8") as f:
+    json.dump(tflog, f, indent = 2)
