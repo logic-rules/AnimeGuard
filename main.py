@@ -32,14 +32,16 @@ video_path = os.path.join("input", first_file)
 result = extract_frames(video_path)
 
 timestamps = extract_timestamps(result)
-print(len(timestamps), len(os.listdir("frames"))) #test
 
 flagged_frames = sorted(flag_clip())
 
 for path in flagged_frames:
     shutil.copy(path, "flagged") # type: ignore     # (copies the list into the "flagged" dir)
 
+    # timestamps:
     frame = os.path.basename(path)   # type: ignore
     number = int(frame[6:10])
-    seconds = float(timestamps[number - 1])
-    print(f"{frame} --- {seconds:.1f}s")
+    org_sec = float(timestamps[number - 1])
+    minutes = int(org_sec // 60)
+    secs = int(org_sec % 60)
+    print(f"{minutes:02d}:{secs:02d}")
