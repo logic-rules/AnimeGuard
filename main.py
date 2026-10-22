@@ -1,5 +1,7 @@
 import os
+import shutil
 from extract_frames import extract_frames # initial frame extraction (ffmpeg) every run
+from extract_frames import extract_timestamps # timestamps extraction (ffmpeg) every run
 from reset_folder import reset_folder # reset frame-inhibiting folders every run
 from clip_pass1 import flag_clip
 
@@ -27,9 +29,17 @@ if not first_file.lower().endswith(video_extensions): # checks extensions (and l
 print("First file:", first_file)
 video_path = os.path.join("input", first_file)
 
-extract_frames(video_path)
+result = extract_frames(video_path)
+
+timestamps = extract_timestamps(result)
+print(len(timestamps), len(os.listdir("frames"))) #test
 
 flagged_frames = sorted(flag_clip())
 
 for path in flagged_frames:
-    shutil.copy(path, "flagged") # type: ignore
+    shutil.copy(path, "flagged") # type: ignore     # (copies the list into the "flagged" dir)
+
+    frame = os.path.basename(path)   # type: ignore
+    number = int(frame[6:10])
+    seconds = float(timestamps[number - 1])
+    print(f"{frame} --- {seconds:.1f}s")
