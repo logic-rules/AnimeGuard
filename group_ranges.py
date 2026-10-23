@@ -1,4 +1,6 @@
-def group_ranges(seconds_list, gap=10):
+def group_ranges(seconds_list, gap=30):
+    if not seconds_list:
+        return []
     ranges = []
 
     start = seconds_list[0]  # acts as anchored beginning point
