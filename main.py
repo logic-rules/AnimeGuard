@@ -3,6 +3,7 @@ import shutil
 import json
 from extract_frames import extract_frames # initial frame and timestamps extraction (ffmpeg) every run
 from reset_folder import reset_folder # reset the two frame-inhibiting folders every run
+from group_ranges import group_ranges
 from clip_pass1 import flag_clip
 
 # wipe and recreate
@@ -34,6 +35,8 @@ timestamps = extract_frames(video_path)
 flagged_frames = sorted(flag_clip())
 
 tflog = []
+seconds_list = []
+
 for path in flagged_frames:
     shutil.copy(path, "flagged") # type: ignore     # (copies the list into the "flagged" dir)
 
@@ -42,14 +45,25 @@ for path in flagged_frames:
     frame = os.path.basename(path)   # type: ignore
     number = int(frame[6:10])
     org_sec = float(timestamps[number - 1])
+    seconds_list.append(org_sec)
 
     minutes = int(org_sec // 60)
     secs = int(org_sec % 60)
-    time_str = f"{minutes:02d}:{secs:02d}"
 
-    tflog.append({
-        "frame": frame,
-        "time": time_str
-    })
+    time_str = f"{minutes:02d}:{secs:02d}"
+    tflog.append({"frame": frame, "time": time_str})
+
 with open("flagged.json", "w", encoding = "utf-8") as f:
     json.dump(tflog, f, indent = 2)
+
+
+# RANGES:
+ranges = group_ranges(seconds_list) # formula for converting timestamps into ranges
+
+range_log = []
+for start, end in ranges:
+    range_str = f"{int(start // 60):02d}:{int(start % 60):02d}-{int(end // 60):02d}:{int(end % 60):02d}"
+    range_log.append(range_str)
+
+with open("flagged_ranges.json", "w", encoding = "utf-8") as f:
+    json.dump(range_log, f, indent = 2)
