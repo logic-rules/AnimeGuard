@@ -10,8 +10,13 @@ from transformers import CLIPModel, CLIPProcessor
 # minimum cosine similarity for a frame to be considered a suggestive prompt
 MIN_SUGGESTIVE_COSINE = 0.25
 
+
 # minimum suggestive score OVER the top safe score
 MARGIN_THRESHOLD = 0.03
+# default is 0.03 for a clean ratio
+# lower it to 0.025-0.027 or less for stubborn frames if:
+# 1. u can skim through god-knows how many more frames get their way through, AND/OR, u have Pass2 enabled (possibly with good gpu/api, future update).
+
 
 DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
 
@@ -23,7 +28,7 @@ SAFE_LABELS = [
     # character & everyday attire
     "an anime character's face or headshot talking",
     "an anime character in school uniform, jacket, hoodie, sweater, or winter coat",
-    "a group of fully clothed anime characters standing or sitting together",
+    "a group of fully clothed anime characters together",
     "an anime character walking, running, sitting, or eating normally",
 
     # specific backgrounds & scene props
