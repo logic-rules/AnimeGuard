@@ -19,7 +19,7 @@ if not files:                  # i.e. if line 8... previous line is just NOT!
     exit() # MANDATORY FOR IF THERES NO INPUT IN input
 print("All files in input:", files)
 
-first_file = files[0]     # (we want just ONE SINGLE FILE per once to proceed)
+first_file = files[1]     # (we want just ONE SINGLE FILE per once to proceed)
 
 video_extensions = (".mp4", ".mkv", ".avi", ".mov", ".webm")
 
@@ -58,10 +58,11 @@ with open("flagged.json", "w", encoding = "utf-8") as f:
 
 
 # RANGES:
-ranges = group_ranges(seconds_list) # formula for converting timestamps into ranges
+GAP_SECONDS = 15
+ranges = group_ranges(seconds_list, GAP_SECONDS) # function for converting timestamps into ranges
 
 range_log = []
-for start, end in ranges:
+for start, end in ranges: # for creating (range_str)s
     range_str = f"{int(start // 60):02d}:{int(start % 60):02d}-{int(end // 60):02d}:{int(end % 60):02d}"
     range_log.append(range_str)
 

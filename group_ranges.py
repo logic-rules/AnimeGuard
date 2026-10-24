@@ -1,4 +1,4 @@
-def group_ranges(seconds_list, gap=30):
+def group_ranges(seconds_list, gap):
     if not seconds_list:
         return []
     ranges = []
