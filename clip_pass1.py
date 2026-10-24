@@ -162,5 +162,4 @@ def flag_clip():
     print("Flagged files: ", display_flagged)
 
     fullpath_flagged = [path for path, _ in deduped]  # full path string
-
-flag_clip()
+    return fullpath_flagged
