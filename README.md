@@ -15,6 +15,7 @@ It was built for people who want to know where the questionable scenes are befor
 - Since CLIP was never trained on such task, it leans toward false alarms. Expect some (or more) flagged frames that are actually fine.
 - It is weaker on wide shots and on frames focused on male characters.
 - It looks at single still frames, so it has no sense of motion/context.
+- A timestamp marks where a shot starts, not how long the content lasts.
 - Tuning the labels was tested on a handful of episodes. Any safe label you add can also "steal" a genuinely suggestive frame, so the labels are intentionally left as they are.
 - A frame that sits just under the threshold can be missed. Lowering `MARGIN_THRESHOLD` (see Settings) catches more of these, at the cost of more false-positives.
 - Visual only. Audio, dialogue and subtitles are not analyzed. (yet)
