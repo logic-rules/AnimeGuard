@@ -19,7 +19,7 @@ if not files:                  # i.e. if line 8... previous line is just NOT!
     exit() # MANDATORY FOR IF THERES NO INPUT IN input
 print("All files in input:", files)
 
-first_file = files[1]     # (we want just ONE SINGLE FILE per once to proceed)
+first_file = files[0]     # (we want just ONE SINGLE FILE per once to proceed)
 
 video_extensions = (".mp4", ".mkv", ".avi", ".mov", ".webm")
 
