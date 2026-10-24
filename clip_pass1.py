@@ -14,9 +14,8 @@ MIN_SUGGESTIVE_COSINE = 0.25
 # minimum suggestive score OVER the top safe score
 MARGIN_THRESHOLD = 0.03
 # default is 0.03 for a clean ratio
-# lower it to 0.025-0.027 or less for stubborn frames if:
+# lower it to 0.025-0.027 for stubborn frames, 0.015 or lower for the most stubborn ones if:
 # 1. u can skim through god-knows how many more frames get their way through, AND/OR, u have Pass2 enabled (possibly with good gpu/api, future update).
-
 
 DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
 
@@ -28,7 +27,7 @@ SAFE_LABELS = [
     # character & everyday attire
     "an anime character's face or headshot talking",
     "an anime character in school uniform, jacket, hoodie, sweater, or winter coat",
-    "a group of fully clothed anime characters together",
+    "a group of fully clothed anime characters standing or sitting together",
     "an anime character walking, running, sitting, or eating normally",
 
     # specific backgrounds & scene props
@@ -163,4 +162,5 @@ def flag_clip():
     print("Flagged files: ", display_flagged)
 
     fullpath_flagged = [path for path, _ in deduped]  # full path string
-    return fullpath_flagged
+
+flag_clip()
