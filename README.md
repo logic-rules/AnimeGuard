@@ -41,7 +41,9 @@ You need Python 3.12+ (developed on 3.14) and ffmpeg.
    pip install -r requirements.txt
    mkdir input
    ```
-   The install downloads torch, which is a large download.
+   After the `activate` line, your prompt should start with `(.venv)`. If it doesn't, the packages won't install in the right place.
+   On macOS/Linux, use `source .venv/bin/activate` instead of `.venv\Scripts\activate`.
+   The installation downloads torch, which is a large download.
 3. The first run downloads the CLIP model from Hugging Face, so you need internet once. After that, everything runs offline.
 
 ## Usage
