@@ -62,6 +62,8 @@ You need Python 3.12+ (developed on 3.14) and ffmpeg.
 
 `frames/` and `flagged/` are wiped at the start of every run, so move anything you want to keep. `input/` is never touched.
 
+**Note:**
+The progress bar needs a real terminal (PowerShell, Terminal, etc.). In PyCharm's Run window the bar isn't present, but the results are the same.
 ## Settings
 
 - `MARGIN_THRESHOLD` (default `0.03`, top of `clip_pass1.py`): how strongly a frame must lean suggestive to be flagged. Lower it (for example `0.015`) to catch borderline frames, but expect more false alarms.
