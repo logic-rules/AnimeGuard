@@ -6,6 +6,7 @@ from PIL import Image
 import torch
 import torch.nn.functional as F
 from transformers import CLIPModel, CLIPProcessor
+from rich.progress import track
 
 # minimum cosine similarity for a frame to be considered a suggestive prompt
 MIN_SUGGESTIVE_COSINE = 0.25
@@ -22,6 +23,7 @@ DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
 NUM_THREADS = 6
 torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
 
+EXTRA = False   # Default = False, True = print full detail for every frame e.g. sug_cos, safe_cos, and likes
 
 SAFE_LABELS = [
     # character & everyday attire
@@ -112,7 +114,7 @@ def flag_clip():
     flagged = []
     start = time.time() # timestamp captured once, right before the loop begins
 
-    for count, path in enumerate(frames, start=1):  # a normal loop, but with an automatic counter (i.e. 2 vars instead of js 1)
+    for count, path in enumerate(track(frames, description = "Scanning frames..."), start=1):  # a normal loop, but with an automatic counter (i.e. 2 vars instead of js 1) + tracked using Rich progress module
         frame_name = os.path.basename(path) # to print the raw file name instead of the full path (at 2 places)
         image = Image.open(path).convert("RGB") # "method chaining" 1 --> open and decode image file. 2 --> converts to RGB color mode. i.e. two instances. 1st temp, 2nd perm. Only the second instance is stored in 'image'
 
@@ -140,17 +142,17 @@ def flag_clip():
         is_candidate = (max_suggestive_cos >= dynamic_min_cos) and (margin >= dynamic_margin)
 
         if is_candidate:
-            flagged.append((path, image_features)) #  !!!!  both the path and the 1D vector.  !!!!
-        elapsed = time.time() - start
-        avg = elapsed / count
-        tag = "🚩" if is_candidate else "safe"
-
-        print(
-            f"[{count}/{total}] {frame_name}: sug_cos={max_suggestive_cos:.3f} "
-            f"safe_cos={max_safe_cos:.3f} margin={margin:+.3f} (ent={entropy:.1f}) {tag} | "
-            f"flagged: {len(flagged)} | ETA: {(total - count) * avg:.0f}s",
-            flush=True,
-        )
+            flagged.append((path, image_features))
+            if not EXTRA:
+                print(f"🚩 {frame_name}: margin={margin:+.3f}")
+            if EXTRA:
+                tag = "🚩" if is_candidate else "safe"
+                print(
+                    f"[{count}/{total}] {frame_name}: sug_cos={max_suggestive_cos:.3f} "
+                    f"safe_cos={max_safe_cos:.3f} margin={margin:+.3f} (ent={entropy:.1f}) {tag} | "
+                    f"flagged: {len(flagged)}",
+                    flush=True,
+                )
 
     print(f"\nDone in {time.time() - start:.1f}s.")
     print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")

@@ -2,3 +2,4 @@ torch>=2.13.0
 transformers>=5.15.0
 pillow>=12.3.0
 numpy>=2.5.2
+rich>=15.0.0
