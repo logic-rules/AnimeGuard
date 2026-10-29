@@ -83,6 +83,9 @@ def get_image_entropy(image):
     hist_norm = hist_norm[hist_norm > 0]
     return -np.sum(hist_norm * np.log2(hist_norm))  # the formula for getting image entropy
 
+def frame_time(path, times): # fetches the index position of the respective frame's time in the times list. explained below.
+    number = int(os.path.basename(path)[6:-4])
+    return float(times[number - 1])
 
 def dedupe_flagged(flagged, times): # used later for deduplication
     deduped = []
@@ -90,7 +93,7 @@ def dedupe_flagged(flagged, times): # used later for deduplication
         if deduped: # checks if empty or not. skips for first frame.
             prev_path, prev_features = deduped[-1]
             similarity = (features @ prev_features.t()).item()
-            gap = float(times[int(os.path.basename(path)[6:-4]) - 1]) - float(times[int(os.path.basename(prev_path)[6:-4]) - 1]) # time passed between two frames... "frame0044.jpg" --> 44 --> sent to "times" list to find the position/index but - 1 = 43 as first idx = 0 --> that exact time for that frame's position in seconds is indexed out as str --> float
+            gap = frame_time(path, times) - frame_time(prev_path, times) # time passed between two frames... working: "frame0044.jpg" --> 44 --> sent to "times" list to find the position/index but - 1 = 43 as first idx = 0 --> that exact time for that frame's position in seconds is indexed out as str --> float
             if similarity > DEDUPE_SIMILARITY_THRESHOLD and gap > DEDUPE_KEEP_SECONDS:
                 continue # if above line is true, it doesn't append the frame, hence removing it. mission accomplished.
         deduped.append((path, features))
