@@ -143,16 +143,6 @@ def flag_clip():
 
         if is_candidate:
             flagged.append((path, image_features))
-            if not EXTRA:
-                print(f"🚩 {frame_name}: margin={margin:+.3f}")
-        if EXTRA:
-            tag = "🚩" if is_candidate else "safe"
-            print(
-                f"[{count}/{total}] {frame_name}: sug_cos={max_suggestive_cos:.3f} "
-                f"safe_cos={max_safe_cos:.3f} margin={margin:+.3f} (ent={entropy:.1f}) {tag} | "
-                f"flagged: {len(flagged)}",
-                flush=True,
-            )
 
     print(f"\nDone in {time.time() - start:.1f}s.")
     print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
@@ -161,7 +151,6 @@ def flag_clip():
 
     display_flagged = [os.path.basename(path) for path, _ in deduped] # print
     print(f"{len(display_flagged)} candidate frames remaining AFTER deduplication.")
-    print("Flagged files: ", display_flagged)
 
     fullpath_flagged = [path for path, _ in deduped]  # full path string
     return fullpath_flagged

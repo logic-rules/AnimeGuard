@@ -5,6 +5,8 @@ from extract_frames import extract_frames # initial frame and timestamps extract
 from reset_folder import reset_folder # reset the two frame-inhibiting folders every run
 from group_ranges import group_ranges
 from clip_pass1 import flag_clip
+from rich.console import Console
+from rich.table import Table
 
 # wipe and recreate
 reset_folder("frames")
@@ -68,3 +70,16 @@ for start, end in ranges: # for creating (range_str)s
 
 with open("flagged_ranges.json", "w", encoding = "utf-8") as f:
     json.dump(range_log, f, indent = 2)
+
+console = Console()
+if not range_log:
+    console.print("No flagged ranges found.")
+else:
+    table = Table(title="\nFlagged Ranges Summary")
+    table.add_column("#")
+    table.add_column("Range")
+
+    for count, r in enumerate(range_log, start = 1):
+        table.add_row(str(count), r)
+
+    console.print(table)
