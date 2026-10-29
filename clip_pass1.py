@@ -10,6 +10,8 @@ import torch
 import torch.nn.functional as F
 from transformers import CLIPModel, CLIPProcessor, logging
 from rich.progress import track
+from rich.console import Console
+console = Console()
 
 logging.set_verbosity_error() # hide other potential transformer warnings for different versions, and makes it so that only errors are shown
 logging.disable_progress_bar() # counter-measure, for different versions (users)
@@ -101,11 +103,11 @@ def dedupe_flagged(flagged, times): # used later for deduplication
 
 
 def flag_clip(times):
-    print("Loading CLIP...")
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-    clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    clip_model.eval()
-    print("CLIP Loaded!")
+    with console.status("[bold green]Loading CLIP..."):
+        clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        clip_model.eval()
+    console.print("[bold green]CLIP Loaded!")
     # precomputing text embeddings once
     print(f"\nPre-computing text embeddings for {len(ALL_LABELS)} labels...")
     text_inputs = clip_processor(text=ALL_LABELS, return_tensors="pt", padding=True) # type: ignore     # ts a dict consisting of input ids n stuff
