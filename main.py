@@ -84,4 +84,4 @@ else:
 
     console.print(table)
 
-console.print("[green]Done![/green]")
+console.print("\n[green]Done![/green]")

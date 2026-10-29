@@ -1,12 +1,18 @@
 import glob
 import os
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1" # disable progress bar
+os.environ["HF_HUB_VERBOSITY"] = "error" # hide the huggingface HF_TOKEN warning
+
 import time
 import numpy as np
 from PIL import Image
 import torch
 import torch.nn.functional as F
-from transformers import CLIPModel, CLIPProcessor
+from transformers import CLIPModel, CLIPProcessor, logging
 from rich.progress import track
+
+logging.set_verbosity_error() # hide other potential transformer warnings for different versions, and makes it so that only errors are shown
+logging.disable_progress_bar() # counter-measure, for different versions (users)
 
 # minimum cosine similarity for a frame to be considered a suggestive prompt
 MIN_SUGGESTIVE_COSINE = 0.25
