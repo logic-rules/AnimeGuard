@@ -105,9 +105,9 @@ def flag_clip(times):
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     clip_model.eval()
-
+    print("CLIP Loaded!")
     # precomputing text embeddings once
-    print(f"Pre-computing text embeddings for {len(ALL_LABELS)} labels...")
+    print(f"\nPre-computing text embeddings for {len(ALL_LABELS)} labels...")
     text_inputs = clip_processor(text=ALL_LABELS, return_tensors="pt", padding=True) # type: ignore     # ts a dict consisting of input ids n stuff
 
     with torch.inference_mode():
@@ -164,14 +164,13 @@ def flag_clip(times):
                 flush=True,
             )
 
+    deduped = dedupe_flagged(flagged, times)
 
     if EXTRA:
         print(f"\nDone in {time.time() - start:.1f}s.")
-        print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
 
-    deduped = dedupe_flagged(flagged, times)
-    if EXTRA:
-        print(f"{len(deduped)} candidate frames remaining AFTER deduplication.")
+        print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
+        print(f"{len(deduped)}/{flagged} candidate frames remaining AFTER deduplication.")
 
     flagged = [path for path, _ in deduped]  # full path string
     return flagged
