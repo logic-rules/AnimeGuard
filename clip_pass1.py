@@ -23,7 +23,7 @@ DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
 NUM_THREADS = 6
 torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
 
-EXTRA = False   # Default = False, True = print full detail for every frame e.g. sug_cos, safe_cos, and likes
+EXTRA = False   # Default = False. True = print full detail for every frame e.g. sug_cos, safe_cos, and likes. False = no print
 
 SAFE_LABELS = [
     # character & everyday attire
@@ -142,8 +142,17 @@ def flag_clip():
         is_candidate = (max_suggestive_cos >= dynamic_min_cos) and (margin >= dynamic_margin)
 
         if is_candidate:
-            flagged.append((path, image_features))
-
+            flagged.append((path, image_features)) #  !!!!  both the path and the 1D summary vector.  !!!!
+        if EXTRA:
+            tag = "🚩" if is_candidate else "safe"
+            print(
+                f"[{count}/{total}] {frame_name}: sug_cos={max_suggestive_cos:.3f} "
+                f"safe_cos={max_safe_cos:.3f} margin={margin:+.3f} (ent={entropy:.1f}) {tag} | "
+                f"flagged: {len(flagged)}",
+                flush=True,
+            )
+        else:
+            continue
     print(f"\nDone in {time.time() - start:.1f}s.")
     print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
 
