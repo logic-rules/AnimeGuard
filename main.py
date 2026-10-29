@@ -34,7 +34,9 @@ video_path = os.path.join("input", first_file)
 
 timestamps = extract_frames(video_path)
 
-flagged_frames = sorted(flag_clip())
+flagged_frames = sorted(flag_clip(timestamps))
+
+# -------------------------------------
 
 tflog = []
 seconds_list = []

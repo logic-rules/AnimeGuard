@@ -25,6 +25,7 @@ MARGIN_THRESHOLD = 0.03
 # 1. u can skim through god-knows how many more frames get their way through, AND/OR, u have Pass2 enabled (possibly with good gpu/api, future update).
 
 DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
+DEDUPE_KEEP_SECONDS = 2   # similar frames closer than this are kept
 
 NUM_THREADS = 6
 torch.set_num_threads(NUM_THREADS) # custom thread count for multicore CPU
@@ -83,19 +84,20 @@ def get_image_entropy(image):
     return -np.sum(hist_norm * np.log2(hist_norm))  # the formula for getting image entropy
 
 
-def dedupe_flagged(flagged): # used later for deduplication
+def dedupe_flagged(flagged, times): # used later for deduplication
     deduped = []
     for path, features in flagged: # for each. (a reminder uh nvm)
         if deduped: # checks if empty or not. skips for first frame.
-            _, prev_features = deduped[-1]
+            prev_path, prev_features = deduped[-1]
             similarity = (features @ prev_features.t()).item()
-            if similarity > DEDUPE_SIMILARITY_THRESHOLD:
+            gap = float(times[int(os.path.basename(path)[6:-4]) - 1]) - float(times[int(os.path.basename(prev_path)[6:-4]) - 1]) # time passed between two frames... "frame0044.jpg" --> 44 --> sent to "times" list to find the position/index but - 1 = 43 as first idx = 0 --> that exact time for that frame's position in seconds is indexed out as str --> float
+            if similarity > DEDUPE_SIMILARITY_THRESHOLD and gap > DEDUPE_KEEP_SECONDS:
                 continue # if above line is true, it doesn't append the frame, hence removing it. mission accomplished.
         deduped.append((path, features))
     return deduped
 
 
-def flag_clip():
+def flag_clip(times):
     print("Loading CLIP...")
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -164,7 +166,7 @@ def flag_clip():
         print(f"\nDone in {time.time() - start:.1f}s.")
         print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
 
-    deduped = dedupe_flagged(flagged)
+    deduped = dedupe_flagged(flagged, times)
     if EXTRA:
         print(f"{len(deduped)} candidate frames remaining AFTER deduplication.")
 
