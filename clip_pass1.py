@@ -143,6 +143,7 @@ def flag_clip():
 
         if is_candidate:
             flagged.append((path, image_features)) #  !!!!  both the path and the 1D summary vector.  !!!!
+
         if EXTRA:
             tag = "🚩" if is_candidate else "safe"
             print(
@@ -151,15 +152,15 @@ def flag_clip():
                 f"flagged: {len(flagged)}",
                 flush=True,
             )
-        else:
-            continue
-    print(f"\nDone in {time.time() - start:.1f}s.")
-    print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
+
+
+    if EXTRA:
+        print(f"\nDone in {time.time() - start:.1f}s.")
+        print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
 
     deduped = dedupe_flagged(flagged)
+    if EXTRA:
+        print(f"{len(deduped)} candidate frames remaining AFTER deduplication.")
 
-    display_flagged = [os.path.basename(path) for path, _ in deduped] # print
-    print(f"{len(display_flagged)} candidate frames remaining AFTER deduplication.")
-
-    fullpath_flagged = [path for path, _ in deduped]  # full path string
-    return fullpath_flagged
+    flagged = [path for path, _ in deduped]  # full path string
+    return flagged
