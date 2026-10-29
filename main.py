@@ -75,11 +75,13 @@ console = Console()
 if not range_log:
     console.print("No flagged ranges found.")
 else:
-    table = Table(title="\nFlagged Ranges Summary")
-    table.add_column("#")
-    table.add_column("Range")
+    table = Table(title="\nFlagged Ranges", title_style="bold red", header_style="bold cyan")
+    table.add_column("#", style="dim")
+    table.add_column("Range", style="yellow")
 
     for count, r in enumerate(range_log, start = 1):
         table.add_row(str(count), r)
 
     console.print(table)
+
+console.print("[green]Done![/green]")
