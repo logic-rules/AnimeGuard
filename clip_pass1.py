@@ -172,7 +172,7 @@ def flag_clip(times):
         print(f"\nDone in {time.time() - start:.1f}s.")
 
         print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
-        print(f"{len(deduped)}/{flagged} candidate frames remaining AFTER deduplication.")
+        print(f"{len(deduped)}/{len(flagged)} candidate frames remaining AFTER deduplication.")
 
     flagged = [path for path, _ in deduped]  # full path string
     return flagged
