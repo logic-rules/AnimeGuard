@@ -67,7 +67,7 @@ ranges = group_ranges(seconds_list, GAP_SECONDS) # function for converting times
 
 range_log = []
 for start, end in ranges: # for creating (range_str)s
-    range_str = f"{int(start // 60):02d}:{int(start % 60):02d}-{int(end // 60):02d}:{int((end + 1) % 60):02d}"
+    range_str = f"{int(start // 60):02d}:{int(start % 60):02d}-{int((end + 1) // 60):02d}:{int((end + 1) % 60):02d}"
     range_log.append(range_str)
 
 with open("flagged_ranges.json", "w", encoding = "utf-8") as f:
