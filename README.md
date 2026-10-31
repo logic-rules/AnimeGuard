@@ -63,7 +63,7 @@ You need Python 3.12+ (developed on 3.14) and ffmpeg.
    pip install -r requirements.txt
    mkdir input
    ```
-   The installation downloads torch, which is a large download.
+      The installation downloads torch (a few hundred MB), so it can take a while on a slow connection.
 3. The first run downloads the CLIP model from Hugging Face, so you need internet once. After that, everything runs offline.
 
 ## Usage
