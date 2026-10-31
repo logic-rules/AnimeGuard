@@ -7,3 +7,5 @@ __pycache__/
 *.pyc
 *.json
 tests*.py
+/test_dir/
+/demo.mp4
