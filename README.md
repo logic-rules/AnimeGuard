@@ -55,13 +55,14 @@ You need Python 3.12+ (developed on 3.14) and ffmpeg.
    cd AnimeGuard
    python -m venv .venv
    ```
-   Activate the virtual environment (Windows: `.venv\Scripts\activate`, macOS/Linux: `source .venv/bin/activate`), then:
+   Activate the virtual environment (Windows: `.venv\Scripts\activate`, macOS/Linux: `source .venv/bin/activate`).
+   On Windows PowerShell, if activating fails with "running scripts is disabled on this system", run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in the same window and activate again. It only applies to that window.
+
+   Your prompt should now start with `(.venv)`. If it doesn't, the packages won't install in the right place. Then:
    ```
    pip install -r requirements.txt
    mkdir input
    ```
-   After the `activate` line, your prompt should start with `(.venv)`. If it doesn't, the packages won't install in the right place.
-   On macOS/Linux, use `source .venv/bin/activate` instead of `.venv\Scripts\activate`.
    The installation downloads torch, which is a large download.
 3. The first run downloads the CLIP model from Hugging Face, so you need internet once. After that, everything runs offline.
 
