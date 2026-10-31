@@ -49,23 +49,57 @@ You need Python 3.12+ (developed on 3.14) and ffmpeg.
    - Linux: `sudo apt install ffmpeg`
 
    Check it with `ffmpeg -version`.
-2. **Get the code and install the packages:**
-   ```
-   git clone https://github.com/logic-rules/AnimeGuard.git
-   cd AnimeGuard
-   python -m venv .venv
-   ```
-   Activate the virtual environment (Windows: `.venv\Scripts\activate`, macOS/Linux: `source .venv/bin/activate`).
-   On Windows PowerShell, if activating fails with "running scripts is disabled on this system", run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in the same window and activate again. It only applies to that window.
 
-   Your prompt should now start with `(.venv)`. If it doesn't, the packages won't install in the right place. Then:
-   ```
-   pip install -r requirements.txt
-   mkdir input
-   ```
-      The installation downloads torch (a few hundred MB), so it can take a while on a slow connection.
-3. The first run downloads the CLIP model from Hugging Face, so you need internet once. After that, everything runs offline.
+## Install
 
+You need Python 3.12+ (developed on 3.14) and ffmpeg.
+
+### 1. Install ffmpeg
+
+- **Windows:** `winget install "FFmpeg (Essentials Build)"`, then close and reopen your terminal so it's on your PATH.
+- **macOS:** `brew install ffmpeg`
+- **Linux:** `sudo apt install ffmpeg`
+
+Check it with `ffmpeg -version`.
+
+### 2. Get the code
+
+With git:
+
+```
+git clone https://github.com/logic-rules/AnimeGuard.git
+cd AnimeGuard
+```
+
+Without git: download "Source code (zip)" from the [latest release](https://github.com/logic-rules/AnimeGuard/releases/latest), extract it, and open a terminal inside the extracted folder.
+
+### 3. Create and activate a virtual environment
+
+```
+python -m venv .venv
+```
+
+Then activate it:
+
+- **Windows:** `.venv\Scripts\activate`
+- **macOS/Linux:** `source .venv/bin/activate`
+
+Your prompt should now start with `(.venv)`. If it doesn't, the packages in the next step won't install in the right place.
+
+> **Windows PowerShell:** if activating fails with "running scripts is disabled on this system", run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in the same window and activate again. It only applies to that window.
+
+### 4. Install the packages
+
+```
+pip install -r requirements.txt
+mkdir input
+```
+
+This downloads torch (a few hundred MB), so it can take a while on a slow connection.
+
+### 5. First run
+
+The first run downloads the CLIP model from Hugging Face, so you need internet once. After that, everything runs offline.
 ## Usage
 
 **Option A: the `input/` folder**
