@@ -26,7 +26,7 @@ GAP_SECONDS = 15 # for ranges func
 def main(
     margin: Annotated[float, typer.Option(help="Score margin needed to flag a frame (lower = more flags)")] = MARGIN_THRESHOLD,
     video: Annotated[Path | None, typer.Option(exists=True, dir_okay=False, help="Path to video file (skips the input/ folder)")] = None,
-    threads: Annotated[int, typer.Option(help="Number of threads to use")] = NUM_THREADS,
+    threads: Annotated[int | None, typer.Option(min=1, help="Number of CPU threads for CLIP (default: auto)")] = NUM_THREADS,
     gap: Annotated[int, typer.Option(help="Max seconds between flagged frames to merge into one range")] = GAP_SECONDS,
     extra: Annotated[bool, typer.Option("--extra", help="Print per-frame details, dedup summary, etc.")] = EXTRA,
 ):

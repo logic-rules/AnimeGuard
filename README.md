@@ -104,7 +104,7 @@ The progress bar needs a real terminal (PowerShell, Terminal, etc.). In PyCharm'
 | `--margin` | `0.03` | How strongly a frame must lean suggestive to be flagged. Lower it (for example `0.015`) to catch borderline frames, but expect more false alarms. |
 | `--gap` | `15` | Flagged frames closer together than this many seconds are merged into one range. |
 | `--video PATH` | none | Scan a file where it is, skipping `input/`. |
-| `--threads` | `6` | CPU threads used by CLIP. |
+| `--threads` | auto | CPU threads used by CLIP. Leave it unset and PyTorch picks based on your CPU. |
 | `--extra` | off | Print per-frame details, dedup summary, etc. |
  
 Run `python main.py --help` for the same list.
