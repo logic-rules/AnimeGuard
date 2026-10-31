@@ -19,7 +19,7 @@ logging.disable_progress_bar() # counter-measure, for different versions (users)
 # minimum cosine similarity for a frame to be considered a suggestive prompt
 MIN_SUGGESTIVE_COSINE = 0.25
 
-NUM_THREADS = 6
+NUM_THREADS = None
 
 # minimum suggestive score OVER the top safe score
 MARGIN_THRESHOLD = 0.03
@@ -102,7 +102,8 @@ def dedupe_flagged(flagged, times): # used later for deduplication
 
 def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, extra=EXTRA):
 
-    torch.set_num_threads(threads) # custom thread count for multicore CPU
+    if threads:
+        torch.set_num_threads(threads) # custom thread count for multicore CPU. None = let PyTorch choose automatically based on CPU
 
     with console.status("[bold green]Loading CLIP model..."):
         clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
