@@ -9,3 +9,6 @@ __pycache__/
 tests*.py
 /test_dir/
 /demo.mp4
+
+tests.py
+vlm_pass2.py
