@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import time
+import re
 
 import typer
 from typing import Annotated
@@ -100,15 +101,18 @@ def main(
 
         # TIMESTAMPS:
         frame = os.path.basename(path)   # type: ignore
-        number = int(frame[6:10])
-        org_sec = float(timestamps[number - 1])
-        seconds_list.append(org_sec)
 
-        minutes = int(org_sec // 60)
-        secs = int(org_sec % 60)
+        match = re.search(r'\d+', frame) # \d: matches any digit, +: one or more times
+        if match:
+            number = int(match.group())
+            org_sec = float(timestamps[number - 1])
+            seconds_list.append(org_sec)
 
-        time_str = f"{minutes:02d}:{secs:02d}"
-        tflog.append({"frame": frame, "time": time_str})
+            minutes = int(org_sec // 60)
+            secs = int(org_sec % 60)
+
+            time_str = f"{minutes:02d}:{secs:02d}"
+            tflog.append({"frame": frame, "time": time_str})
 
     with open("output/flagged.json", "w", encoding ="utf-8") as f:
         json.dump(tflog, f, indent = 2)
