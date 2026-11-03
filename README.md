@@ -1,9 +1,15 @@
 # AnimeGuard
 
 <p align="left">
-  <img src="https://img.shields.io/badge/python-v3.12+-1f6feb?style=flat&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/vision-CLIP-238636?style=flat" alt="CLIP">
-  <img src="https://img.shields.io/badge/license-MIT-8b949e?style=flat" alt="License">
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/python-v3.12+-1f6feb?style=flat&logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://github.com/openai/CLIP">
+    <img src="https://img.shields.io/badge/vision-CLIP-238636?style=flat" alt="CLIP">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-8b949e?style=flat" alt="License">
+  </a>
 </p>
 
 A local tool that scans an anime episode and flags scenes that look suggestive (or like fanservice), with timestamps.
