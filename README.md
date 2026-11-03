@@ -48,7 +48,7 @@ It was built for people who want to know where _such scenes_ are before watching
 
 1. **Extract frames.** ffmpeg extracts one frame at a scene change (not at fixed intervals), scaled down to 480px.
 2. **Screen with CLIP (Pass 1).** Each frame is compared by a local CLIP model against two sets of text descriptions: suggestive ones and "safe" ones (faces, school uniforms, scenery, and so on). A frame is flagged when it matches a suggestive description clearly better than any safe one. Near-duplicate flagged frames are removed.
-3. **Save results.** Flagged frames are copied to `flagged/`, their timestamps written to `flagged.json`, and the ones close together by a specified gap are grouped into time ranges in `flagged_ranges.json`.
+3. **Save results.** Flagged frames are copied to `flagged/`, their timestamps written to `output/flagged.json`, and the ones close together by a specified gap are grouped into time ranges in `output/flagged_ranges.json`.
 
 ## Known Limitations & Technical Trade-offs
 
@@ -135,9 +135,9 @@ python main.py --video "C:\Videos\Episode 01.mkv"
 The file is read directly from its path. It is never copied, moved or deleted. On Windows, put the path in double quotes if it contains spaces.
 
 **Results** appear in the terminal as a table of time ranges, a one-line summary, and in:
-   - `flagged/`: copies of the flagged frames
-   - `flagged.json`: each flagged frame, with its timestamp
-   - `flagged_ranges.json`: time ranges of nearby flags
+   - `output/flagged/`: copies of the flagged frames
+   - `output/flagged.json`: each flagged frame, with its timestamp
+   - `output/flagged_ranges.json`: time ranges of nearby flags
 
 `frames/` and `flagged/` are wiped at the start of every run, so move anything you want to keep. `input/` is never touched.
 
