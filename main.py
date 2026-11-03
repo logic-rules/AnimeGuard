@@ -12,7 +12,7 @@ from rich.text import Text
 from rich.align import Align
 from rich.markup import escape
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 console = Console()
 
 from animeguard.extract_frames import extract_frames # initial frame and timestamps extraction (ffmpeg) every run
