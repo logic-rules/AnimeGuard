@@ -48,7 +48,7 @@ It was built for people who want to know where _such scenes_ are before watching
 
 1. **Extract frames.** ffmpeg extracts one frame at a scene change (not at fixed intervals), scaled down to 480px.
 2. **Screen with CLIP (Pass 1).** Each frame is compared by a local CLIP model against two sets of text descriptions: suggestive ones and "safe" ones (faces, school uniforms, scenery, and so on). A frame is flagged when it matches a suggestive description clearly better than any safe one. Near-duplicate flagged frames are removed.
-3. **Save results.** Flagged frames are copied to `flagged/`, their timestamps written to `output/flagged.json`, and the ones close together by a specified gap are grouped into time ranges in `output/flagged_ranges.json`.
+3. **Save results.** Flagged frames are copied to `output/flagged/`, their timestamps written to `output/flagged.json`, and the ones close together by a specified gap are grouped into time ranges in `output/flagged_ranges.json`.
 
 ## Known Limitations & Technical Trade-offs
 
@@ -139,7 +139,7 @@ The file is read directly from its path. It is never copied, moved or deleted. O
    - `output/flagged.json`: each flagged frame with its timestamp (`MM:SS`)
    - `output/flagged_ranges.json`: flagged frames merge into time ranges (`MM:SS-MM:SS`)
 
-`frames/` and `flagged/` are wiped at the start of every run, so move anything you want to keep. `input/` is never touched.
+`frames/` and `output/flagged/` are wiped at the start of every run, so move anything you want to keep. `input/` is never touched.
 
 **Note:**
 The progress bar needs a real terminal (PowerShell, Terminal, etc.). In PyCharm's Run window the bar may not be present, but the results are the same.
