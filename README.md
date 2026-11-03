@@ -27,6 +27,23 @@ It was built for people who want to know where _such scenes_ are before watching
 
 > **AnimeGuard is currently a rough first-pass filter, not an exact detector.** It favors showing you too much over missing a scene, so treat the output as a short list to skim, not as a final answer.
 
+## Table of Content
+
+- [How it works](#how-it-works)
+- [Known Limitations & Technical Trade-offs](#known-limitations--technical-trade-offs)
+- [Installation](#installation)
+  - [1. Install ffmpeg](#1-install-ffmpeg)
+  - [2. Get the code](#2-get-the-code)
+  - [3. Create and activate a virtual environment](#3-create-and-activate-a-virtual-environment)
+  - [4. Install the packages](#4-install-the-packages)
+  - [5. First run](#5-first-run)
+- [Usage](#usage)
+  - [Option A: the input/ folder](#option-a-the-input-folder)
+  - [Option B: point at a file with --video](#option-b-point-at-a-file-with---video)
+- [Options](#options)
+- [Roadmap](#roadmap)
+- [License](#license)
+
 ## How it works
 
 1. **Extract frames.** ffmpeg extracts one frame at a scene change (not at fixed intervals), scaled down to 480px.
@@ -94,9 +111,10 @@ This downloads PyTorch and a few other dependencies (a few hundred MB), so it ca
 ### 5. First run
 
 The first run downloads the CLIP model from Hugging Face, so you need internet once. After that, everything runs offline.
+
 ## Usage
 
-**Option A: the `input/` folder**
+### Option A: the `input/` folder
 
 1. Put **one** episode file in the `input/` folder (`.mp4`, `.mkv`, `.avi`, `.mov` or `.webm`).
    **Copy it, don't move it.** On Windows, hold **Ctrl** while dragging.
@@ -108,7 +126,7 @@ The first run downloads the CLIP model from Hugging Face, so you need internet o
 
 If `input/` is empty or holds more than one file, the tool stops with a one-line message.  
 
-**Option B: point at a file with `--video`**
+### Option B: point at a file with `--video`
  
 ```
 python main.py --video "C:\Videos\Episode 01.mkv"
