@@ -44,10 +44,12 @@ def main(
     console.print(Align.center(title))
     console.print(Align.center(f"[dim]v{VERSION}  ·  finds the fanservice so you can skip it[/dim]"))
 
-    if margin != MARGIN_THRESHOLD and gap != GAP_SECONDS:
-        console.print(Align.center(f"[cyan]margin:[/cyan] {margin}   [cyan]gap:[/cyan] {gap}s"))
+    if margin != MARGIN_THRESHOLD and threads and gap != GAP_SECONDS:
+        console.print(Align.center(f"[cyan]margin:[/cyan] {margin}   [cyan]threads:[/cyan] {threads}   [cyan]gap:[/cyan] {gap}s"))
     elif margin != MARGIN_THRESHOLD:
         console.print(Align.center(f"[cyan]margin:[/cyan] {margin}"))
+    elif threads:
+        console.print(Align.center(f"[cyan]threads:[/cyan] {threads}"))
     elif gap != GAP_SECONDS:
         console.print(Align.center(f"[cyan]gap:[/cyan] {gap}s"))
     console.rule(characters="·", style="cyan") # repeater (cute dotted line)
