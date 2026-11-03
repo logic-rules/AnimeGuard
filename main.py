@@ -93,8 +93,9 @@ def main(
     tflog = []
     seconds_list = []
 
+    os.makedirs("output/flagged", exist_ok=True)
     for path in flagged_frames:
-        shutil.copy(path, "flagged") # type: ignore     # (copies the list into the "flagged" dir)
+        shutil.copy(path, "output/flagged") # type: ignore     # (copies the list into the "flagged" dir)
 
 
         # TIMESTAMPS:
@@ -109,7 +110,7 @@ def main(
         time_str = f"{minutes:02d}:{secs:02d}"
         tflog.append({"frame": frame, "time": time_str})
 
-    with open("flagged.json", "w", encoding ="utf-8") as f:
+    with open("output/flagged.json", "w", encoding ="utf-8") as f:
         json.dump(tflog, f, indent = 2)
 
 
@@ -121,7 +122,7 @@ def main(
         range_str = f"{int(start // 60):02d}:{int(start % 60):02d}-{int((end + 1) // 60):02d}:{int((end + 1) % 60):02d}"
         range_log.append(range_str)
 
-    with open("flagged_ranges.json", "w", encoding ="utf-8") as f:
+    with open("output/flagged_ranges.json", "w", encoding ="utf-8") as f:
         json.dump(range_log, f, indent = 2)
 
     if not range_log:
