@@ -14,7 +14,7 @@ It was built for people who want to know where the questionable scenes are befor
 
 <table align="center">
   <tr><th align="left">🔴 🟡 🟢 &nbsp; animeguard-demo.gif</th></tr>
-  <tr><td><img src="demo.gif" alt="AnimeGuard demo" width="550"></td></tr>
+  <tr><td><img src="animeguard-demo.gif" alt="AnimeGuard demo" width="550"></td></tr>
 </table>
 
 <br>
