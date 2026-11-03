@@ -136,8 +136,8 @@ The file is read directly from its path. It is never copied, moved or deleted. O
 
 **Results** appear in the terminal as a table of time ranges, a one-line summary, and in:
    - `output/flagged/`: copies of the flagged frames
-   - `output/flagged.json`: each flagged frame, with its timestamp
-   - `output/flagged_ranges.json`: time ranges of nearby flags
+   - `output/flagged.json`: each flagged frame with its timestamp (`MM:SS`)
+   - `output/flagged_ranges.json`: flagged frames merge into time ranges (`MM:SS-MM:SS`)
 
 `frames/` and `flagged/` are wiped at the start of every run, so move anything you want to keep. `input/` is never touched.
 
