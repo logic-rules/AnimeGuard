@@ -15,11 +15,11 @@ from rich.markup import escape
 VERSION = "1.0.0"
 console = Console()
 
-from extract_frames import extract_frames # initial frame and timestamps extraction (ffmpeg) every run
+from animeguard.extract_frames import extract_frames # initial frame and timestamps extraction (ffmpeg) every run
 from pathlib import Path
-from reset_folder import reset_folder # reset the two frame-inhibiting folders every run
-from group_ranges import group_ranges
-from clip_pass1 import flag_clip, MARGIN_THRESHOLD, NUM_THREADS, EXTRA
+from animeguard.reset_folder import reset_folder # reset the two frame-inhibiting folders every run
+from animeguard.group_ranges import group_ranges
+from animeguard.clip_pass1 import flag_clip, MARGIN_THRESHOLD, NUM_THREADS, EXTRA
 
 GAP_SECONDS = 15 # for ranges func
 
@@ -109,7 +109,7 @@ def main(
         time_str = f"{minutes:02d}:{secs:02d}"
         tflog.append({"frame": frame, "time": time_str})
 
-    with open("flagged.json", "w", encoding = "utf-8") as f:
+    with open("flagged.json", "w", encoding ="utf-8") as f:
         json.dump(tflog, f, indent = 2)
 
 
@@ -121,7 +121,7 @@ def main(
         range_str = f"{int(start // 60):02d}:{int(start % 60):02d}-{int((end + 1) // 60):02d}:{int((end + 1) % 60):02d}"
         range_log.append(range_str)
 
-    with open("flagged_ranges.json", "w", encoding = "utf-8") as f:
+    with open("flagged_ranges.json", "w", encoding ="utf-8") as f:
         json.dump(range_log, f, indent = 2)
 
     if not range_log:
