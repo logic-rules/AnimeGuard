@@ -27,9 +27,6 @@ MARGIN_THRESHOLD = 0.03
 # lower it to 0.025-0.027 for stubborn frames, 0.015 or lower for the most stubborn ones if:
 # 1. u can skim through god-knows how many more frames get their way through, AND/OR, u have Pass2 enabled (possibly with good gpu/api, future update).
 
-DEDUPE_SIMILARITY_THRESHOLD = 0.93 # dedup
-DEDUPE_KEEP_SECONDS = 2   # similar frames closer than this are kept
-
 EXTRA = False   # Default = False. True = print full detail for every frame e.g. sug_cos, safe_cos, and likes. False = no print
 
 SAFE_LABELS = [
@@ -86,18 +83,6 @@ def get_image_entropy(image):
 def frame_time(path, times): # fetches the index position of the respective frame's time in the times list. explained below.
     number = int(os.path.basename(path)[6:-4])
     return float(times[number - 1])
-
-def dedupe_flagged(flagged, times): # used later for deduplication
-    deduped = []
-    for path, features in flagged: # for each. (a reminder uh nvm)
-        if deduped: # checks if empty or not. skips for first frame.
-            prev_path, prev_features = deduped[-1]
-            similarity = (features @ prev_features.t()).item()
-            gap = frame_time(path, times) - frame_time(prev_path, times) # time passed between two frames... working: "frame0044.jpg" --> 44 --> sent to "times" list to find the position/index but - 1 = 43 as first idx = 0 --> that exact time for that frame's position in seconds is indexed out as str --> float
-            if similarity > DEDUPE_SIMILARITY_THRESHOLD and gap > DEDUPE_KEEP_SECONDS:
-                continue # if above line is true, it doesn't append the frame, hence removing it. mission accomplished.
-        deduped.append((path, features))
-    return deduped
 
 
 def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, extra=EXTRA):
@@ -167,7 +152,7 @@ def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, ext
             is_candidate = (max_suggestive_cos >= dynamic_min_cos) and (margin >= dynamic_margin)
 
             if is_candidate:
-                flagged.append((path, image_features)) #  !!!!  both the path and the 1D summary vector.  !!!!
+                flagged.append(path)
 
             if extra:
                 tag = "FLAG" if is_candidate else "safe"
@@ -177,13 +162,7 @@ def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, ext
                     f"flagged: {len(flagged)}",
                 )
 
-    deduped = dedupe_flagged(flagged, times)
-
     if extra:
-        print(f"\nDone in {time.time() - start:.1f}s.")
+        print(f"\nScanned in {time.time() - start:.1f}s.")
 
-        print(f"{len(flagged)}/{total} candidate frames BEFORE deduplication.")
-        print(f"{len(deduped)}/{len(flagged)} candidate frames remaining AFTER deduplication.")
-
-    flagged = [path for path, _ in deduped]  # full path string
     return flagged

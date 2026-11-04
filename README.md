@@ -152,7 +152,7 @@ The progress bar needs a real terminal (PowerShell, Terminal, etc.). In PyCharm'
 | `--gap` | `15` | Flagged frames closer together than this many seconds are merged into one range.                                                                  |
 | `--video PATH` | none | Scan a file by its path, skipping `input/`.                                                                                                       |
 | `--threads` | auto | CPU threads used by CLIP. Leave it unset and PyTorch picks based on your CPU.                                                                     |
-| `--extra` | off | Print per-frame details, dedup summary, etc.                                                                                                      |
+| `--extra` | off | Print per-frame details                                                                                                      |
  
 Run `python main.py --help` for the same list.
 
