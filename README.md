@@ -166,4 +166,4 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
-*Planned and built while learning. AI helped by explaining concepts, suggesting approaches and giving code snippets. Claude also helped draft this README.*
+*Planned and built while learning. AI helped by explaining concepts, suggesting approaches and giving code snippets. Claude helped draft this README.*
