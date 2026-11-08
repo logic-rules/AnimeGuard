@@ -1,30 +1,13 @@
 import json
 import sys
+import re
 
 TOL = 2 # seconds buff
 
 
-def to_seconds(time_str): # converts a timestamp "(xx:xx)" into simple seconds (int)
-    parts = time_str.split(":") # "xx:xx" --> list of ("xx" "xx")
-    if len(parts) == 3: # 3 parts, i.e. an hour
-        return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-
-    elif len(parts) == 2: # 2 parts, i.e. a minute
-        return int(parts[0]) * 60 + int(parts[1])
-
-    return int(time_str) # already in simple seconds, (int)
-
-
-def parse_range(text): # 1. range ("xx:xx-xx:xx") --> 2. list of ("xx" "xx" "xx" "xx') --> 3. first 2 ("xx" "xx") = "xx:xx", 4. same for next 2
-    text = text.strip()
-    if text.count("-") == 3: # edge case of 3 hyphens
-        parts = text.split("-")
-        start = f"{parts[0]}:{parts[1]}"
-        end = f"{parts[2]}:{parts[3]}"
-    else:
-        start, end = text.rsplit("-", 1) # normal case, splits right to left into "start" and "end" using the one hyphen
-
-    return to_seconds(start), to_seconds(end)
+def parse_range(text):
+    m1, s1, m2, s2 = map(int, re.findall(r"\d+", text))
+    return m1 * 60 + s1, m2 * 60 + s2
 
 
 def fmt(r): # formatting display seconds values back into clean ranges ("xx:xx-xx:xx")
