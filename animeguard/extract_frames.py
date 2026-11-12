@@ -9,7 +9,7 @@ def extract_frames(video_path):
 
     x = [
     "ffmpeg", "-i", video_path,
-    "-vf", "select='gt(scene,0.08)',showinfo, scale=-2:480",
+    "-vf", "select='gt(scene,0.08)+gte(t-prev_selected_t,2)',showinfo,scale=-2:480",
     "-fps_mode", "vfr",
               "-y",
     "frames/frame_%04d.jpg"
