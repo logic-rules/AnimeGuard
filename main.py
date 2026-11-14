@@ -45,14 +45,17 @@ def main(
     console.print(Align.center(title))
     console.print(Align.center(f"[dim]v{VERSION}  ·  finds the fanservice so you can skip it[/dim]"))
 
-    if strict and threads and gap != GAP_SECONDS:
-        console.print(Align.center(f"[cyan]strict[/cyan]   [cyan]threads:[/cyan] {threads}   [cyan]gap:[/cyan] {gap}s"))
-    elif strict:
-        console.print(Align.center("[cyan]strict mode[/cyan]"))
-    elif threads:
-        console.print(Align.center(f"[cyan]threads:[/cyan] {threads}"))
-    elif gap != GAP_SECONDS:
-        console.print(Align.center(f"[cyan]gap:[/cyan] {gap}s"))
+    tags = []
+
+    if strict:
+        tags.append("[cyan]strict[/cyan]")
+    if threads:
+        tags.append(f"[cyan]threads:[/cyan] {threads}")
+    if gap != GAP_SECONDS:
+        tags.append(f"[cyan]gap:[/cyan] {gap}s")
+
+    if tags:
+        console.print(Align.center("   ".join(tags)))
     console.rule(characters="·", style="cyan") # repeater (cute dotted line)
     console.print() # new-line
 
