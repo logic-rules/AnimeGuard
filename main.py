@@ -20,12 +20,12 @@ from animeguard.extract_frames import extract_frames # initial frame and timesta
 from pathlib import Path
 from animeguard.reset_folder import reset_folder # reset the two frame-inhibiting folders every run
 from animeguard.group_ranges import group_ranges
-from animeguard.clip_pass1 import flag_clip, MARGIN_THRESHOLD, NUM_THREADS, EXTRA
+from animeguard.clip_pass1 import flag_clip, CUTOFF, STRICT_CUTOFF, NUM_THREADS, EXTRA
 
 GAP_SECONDS = 15 # for ranges func
 
 def main(
-    margin: Annotated[float, typer.Option(help="Score margin needed to flag a frame (lower = more flags)")] = MARGIN_THRESHOLD,
+    strict: Annotated[bool, typer.Option("--strict", help="Fewer false alarms, but misses more scenes")] = False,
     video: Annotated[Path | None, typer.Option(exists=True, dir_okay=False, help="Path to video file (skips the input/ folder)")] = None,
     threads: Annotated[int | None, typer.Option(min=1, help="Number of CPU threads for CLIP (default: auto)")] = NUM_THREADS,
     gap: Annotated[int, typer.Option(help="Max seconds between flagged frames to merge into one range")] = GAP_SECONDS,
@@ -45,10 +45,10 @@ def main(
     console.print(Align.center(title))
     console.print(Align.center(f"[dim]v{VERSION}  ·  finds the fanservice so you can skip it[/dim]"))
 
-    if margin != MARGIN_THRESHOLD and threads and gap != GAP_SECONDS:
-        console.print(Align.center(f"[cyan]margin:[/cyan] {margin}   [cyan]threads:[/cyan] {threads}   [cyan]gap:[/cyan] {gap}s"))
-    elif margin != MARGIN_THRESHOLD:
-        console.print(Align.center(f"[cyan]margin:[/cyan] {margin}"))
+    if strict and threads and gap != GAP_SECONDS:
+        console.print(Align.center(f"[cyan]strict[/cyan]   [cyan]threads:[/cyan] {threads}   [cyan]gap:[/cyan] {gap}s"))
+    elif strict:
+        console.print(Align.center("[cyan]strict mode[/cyan]"))
     elif threads:
         console.print(Align.center(f"[cyan]threads:[/cyan] {threads}"))
     elif gap != GAP_SECONDS:
@@ -87,7 +87,7 @@ def main(
 
     timestamps = extract_frames(video_path)
 
-    flagged_frames = sorted(flag_clip(timestamps, margin, threads, extra))
+    flagged_frames = sorted(flag_clip(timestamps, STRICT_CUTOFF if strict else CUTOFF, threads, extra))
 
     # ---------------------------------------------------------------------
 

@@ -10,3 +10,5 @@ __pycache__/
 /scratch/
 vlm_pass2.py
 /output/
+/eval/blind/
+/eval/truth/

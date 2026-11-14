@@ -6,6 +6,7 @@ os.environ["HF_HUB_VERBOSITY"] = "error" # hide the huggingface HF_TOKEN warning
 import time
 import numpy as np
 from PIL import Image
+from pathlib import Path
 import torch
 import torch.nn.functional as F
 from transformers import CLIPModel, CLIPProcessor, logging
@@ -28,6 +29,11 @@ MARGIN_THRESHOLD = 0.03
 # 1. u can skim through god-knows how many more frames get their way through, AND/OR, u have Pass2 enabled (possibly with good gpu/api, future update).
 
 EXTRA = False   # Default = False. True = print full detail for every frame e.g. sug_cos, safe_cos, and likes. False = no print
+
+CUTOFF = 0.7
+STRICT_CUTOFF = 0.85
+_model = np.load(Path(__file__).parent / "pass2_model.npz")
+W, B = _model["w"], float(_model["b"])
 
 SAFE_LABELS = [
     # character & everyday attire
@@ -85,7 +91,7 @@ def frame_time(path, times): # fetches the index position of the respective fram
     return float(times[number - 1])
 
 
-def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, extra=EXTRA):
+def flag_clip(times, cutoff=CUTOFF, threads=NUM_THREADS, extra=EXTRA):
 
     if threads:
         torch.set_num_threads(threads) # custom thread count for multicore CPU. None = let PyTorch choose automatically based on CPU
@@ -123,14 +129,14 @@ def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, ext
         rp.TimeRemainingColumn(),
         console=console,
     )
+
+    feats, ts = [], []
     with progress:
         for count, path in enumerate(progress.track(frames, description="Scanning frames"), start=1):  # a normal loop, but with an automatic counter (i.e. 2 vars instead of js 1) + tracked using Rich progress module
             frame_name = os.path.basename(path) # to print the raw file name instead of the full path (at 2 places)
             image = Image.open(path).convert("RGB") # "method chaining" 1 --> open and decode image file. 2 --> converts to RGB color mode. i.e. two instances. 1st temp, 2nd perm. Only the second instance is stored in 'image'
 
             entropy = get_image_entropy(image)
-            dynamic_min_cos = MIN_SUGGESTIVE_COSINE + (0.010 if entropy < 5.0 else 0.0)
-            dynamic_margin = margin_threshold + (0.005 if entropy < 5.0 else 0.0)
 
             image_inputs = clip_processor(images=image, return_tensors="pt") # type: ignore
 
@@ -140,6 +146,7 @@ def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, ext
                 pooled_image = image_outputs.pooler_output # shape: (1, 768). a 2D tensor holding the 1 summary vector for the ONE frame.
                 image_embeds = clip_model.visual_projection(pooled_image) # projection shrinks the tensor shape from (1,768) to (1, 512) so it (image tensor) can be projected in "latent comparable space of labels-image comparison"
                 image_features = F.normalize(image_embeds, p=2, dim=-1)
+                feats.append(image_features[0].numpy()); ts.append(frame_time(path, times))
 
 
                 # cosine similarity matmul:
@@ -149,8 +156,9 @@ def flag_clip(times, margin_threshold=MARGIN_THRESHOLD, threads=NUM_THREADS, ext
             max_safe_cos = cosine_sims[: len(SAFE_LABELS)].max().item()
 
             margin = max_suggestive_cos - max_safe_cos
-            is_candidate = (max_suggestive_cos >= dynamic_min_cos) and (margin >= dynamic_margin)
+            prob = 1 / (1 + np.exp(-(feats[-1] @ W + B)))
 
+            is_candidate = prob >= cutoff
             if is_candidate:
                 flagged.append(path)
 
