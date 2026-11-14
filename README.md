@@ -25,11 +25,12 @@ It was built for people who want to know where _such scenes_ are before watching
 
 <br>
 
-> **AnimeGuard is currently a rough first-pass filter, not an exact detector.** It favors showing you too much over missing a scene, so treat the output as a short list to skim, not as a final answer.
+> **AnimeGuard is currently a rough first-pass filter, not an exact detector.** It favors showing you a bit too much over missing a scene, so treat the output as a short list to skim, not as a final answer.
 
 ## Table of Content
 
 - [How it works](#how-it-works)
+- [Accuracy](#accuracy)
 - [Known Limitations & Technical Trade-offs](#known-limitations--technical-trade-offs)
 - [Installation](#installation)
   - [1. Install ffmpeg](#1-install-ffmpeg)
@@ -46,18 +47,35 @@ It was built for people who want to know where _such scenes_ are before watching
 
 ## How it works
 
-1. **Extract frames.** ffmpeg extracts one frame at a scene change (not at fixed intervals), scaled down to 480px.
-2. **Screen with CLIP (Pass 1).** Each frame is compared by a local CLIP model against two sets of text descriptions: suggestive ones and "safe" ones (faces, school uniforms, scenery, and so on). A frame is flagged when it matches a suggestive description clearly better than any safe one. Near-duplicate flagged frames are removed.
+1. **Extract frames.** ffmpeg extracts one frame at each scene change, plus at least one every 2 seconds so slow shots aren't skipped, scaled down to 480px.
+2. **Score with CLIP + a trained classifier.** A local CLIP model turns each frame into an embedding. A small classifier (logistic regression, trained on 10 hand-labeled episodes from 10 different shows) scores each embedding, and a frame is flagged when its score passes the cutoff (`0.7` by default, `0.85` with `--strict`).
 3. **Save results.** Flagged frames are copied to `output/flagged/`, their timestamps written to `output/flagged.json`, and the ones close together by a specified gap are grouped into time ranges in `output/flagged_ranges.json`.
+
+## Accuracy
+
+Tested against scenes I labeled by hand. **Precision** is how many flagged ranges were real scenes, and **recall** is how many of the real scenes were found.
+
+| | Precision | Recall |
+|---|---|---|
+| **10 training shows (each one held out while testing)** | | |
+| Original CLIP-only rule | 50% | 82% |
+| Classifier, default | 60% | 82% |
+| Classifier, `--strict` | 86% | 50% |
+| **3 shows it never saw** | | |
+| Original CLIP-only rule | 50% | 56% |
+| Classifier, default | 53% | 60% |
+| Classifier, `--strict` | 80% | 23% |
+
+- On the training shows, the classifier gives fewer false alarms at the same recall. On unseen shows the improvement is small.
+- `--strict` gives a short, mostly correct list but misses a lot. Use it when you only want the clearest scenes.
+- The labels are one person's opinion, and borderline scenes count as scenes. The 3-show test is small, so treat those numbers as rough.
 
 ## Known Limitations & Technical Trade-offs
 
-- **Expect false alarms.** AnimeGuard is tuned for **high recall over high precision**, meaning it throws plenty of false flags just to make sure it doesn't miss anything. Expect some (or more) flagged frames that are actually fine. On the episodes I checked, roughly 50-70% of flagged ranges were genuine, depending on the episode (this is aimed to improve in later releases). Ranges only a second or two long are more likely to be false-positives.
-- **Missed scenes happen.** Missed scenes are possible, even with the best recall optimizations. Unless you rewatch everything manually, it's hard to measure exact miss rates. Spot checks showed few misses, but some stubborn, edge cases will slip through.
-- **Weaker on wide shots.** Visual features get harder to pick up in distant background shots by the Pass 1 CLIP model.
+- **Expect false alarms.** AnimeGuard is tuned for **high recall over high precision**, meaning it throws plenty of false flags just to make sure it doesn't miss anything. Expect some (or more) flagged frames that are actually fine. In my tests, roughly 50-60% of flagged ranges were genuine at the default setting, depending on the episode (`--strict` raises this to about 80%, but misses more scenes). Ranges only a second or two long are more likely to be false-positives.
+- **Missed scenes happen.** Missed scenes are possible, even with the best recall optimizations. On shows the classifier had never seen, the default setting found about 60% of the scenes I had labeled, and `--strict` far fewer, so don't treat the output as a complete list. Some stubborn, edge cases will slip through.
+- **Weaker on wide shots.** Visual features get harder to pick up in distant background shots by the CLIP model.
 - **No sense of motion or context.** CLIP's core nature is that it evaluates single static frames in isolation. It doesn't know what happened before or after.
-- **Sensitive prompt tuning.** The CLIP prompt descriptions were tuned on a small set of episodes. Adding safer prompts to filter false flags can accidentally "steal" real hits, so the labels are intentionally kept as-is for now.
-- **Borderline misses.** At the default `--margin 0.03`, low-contrast frames or weird camera angles have a chance of dropping below the threshold. Lowering `--margin` toward `0.015` catches more of these, but expect a flood of false flags.
 - **Visuals only.** No audio, dialogue, or subtitle analysis.
 - **Startup delay.** PyTorch takes a few seconds to load into memory on startup, and processing a full episode takes a few minutes on CPU.
 
@@ -145,20 +163,20 @@ The file is read directly from its path. It is never copied, moved or deleted. O
 The progress bar needs a real terminal (PowerShell, Terminal, etc.). In PyCharm's Run window the bar may not be present, but the results are the same.
 
 ## Options
- 
-| Flag | Default | What it does                                                                                                                                      |
-|---|---|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--margin` | `0.03` | How strongly a frame must lean suggestive to be flagged. Lower it (for example `0.015`) to catch borderline frames, but expect more false alarms. |
-| `--gap` | `15` | Flagged frames closer together than this many seconds are merged into one range.                                                                  |
-| `--video PATH` | none | Scan a file by its path, skipping `input/`.                                                                                                       |
-| `--threads` | auto | CPU threads used by CLIP. Leave it unset and PyTorch picks based on your CPU.                                                                     |
-| `--extra` | off | Print per-frame details                                                                                                      |
- 
+
+| Flag           | Default | What it does                                                                                                                                                                                                                                    |
+|----------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--strict`     | off     | Uses a stricter cutoff (`0.85` instead of `0.7`). Far fewer false alarms (about 80% of flagged ranges were genuine in my tests), but it finds fewer scenes, so expect more misses. Good when you only want a short list of the clearest scenes. |
+| `--gap`        | `15`    | Flagged frames closer together than this many seconds are merged into one range.                                                                                                                                                                |
+| `--video PATH` | none    | Scan a file by its path, skipping `input/`.                                                                                                                                                                                                     |
+| `--threads`    | auto    | CPU threads used by CLIP. Leave it unset and PyTorch picks based on your CPU.                                                                                                                                                                   |
+| `--extra`      | off     | Print per-frame details.                                                                                                                                                                                                                        |
+
 Run `python main.py --help` for the same list.
 
 ## Roadmap
 
-A second-stage classifier on CLIP embeddings, to cut false positives from first scan, is planned for a future release. A heavier vision-language Pass 2 is considered after that.
+A heavier vision-language second pass to cut false positives further is being considered. A middle cutoff between the default and `--strict` is also planned.
 
 ## License
 
