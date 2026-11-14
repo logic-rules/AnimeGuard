@@ -48,7 +48,7 @@ def main(
     tags = []
 
     if strict:
-        tags.append("[cyan]strict[/cyan]")
+        tags.append("[cyan]strict mode[/cyan]")
     if threads:
         tags.append(f"[cyan]threads:[/cyan] {threads}")
     if gap != GAP_SECONDS:
