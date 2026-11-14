@@ -32,6 +32,8 @@ EXTRA = False   # Default = False. True = print full detail for every frame e.g.
 
 CUTOFF = 0.7
 STRICT_CUTOFF = 0.85
+
+# load trained weights (w) and bias (b) from the model file (.npz)
 _model = np.load(Path(__file__).parent / "pass2_model.npz")
 W, B = _model["w"], float(_model["b"])
 
@@ -130,7 +132,7 @@ def flag_clip(times, cutoff=CUTOFF, threads=NUM_THREADS, extra=EXTRA):
         console=console,
     )
 
-    feats, ts = [], []
+    feats, ts = [], [] # collect frame embeddings and timestamps
     with progress:
         for count, path in enumerate(progress.track(frames, description="Scanning frames"), start=1):  # a normal loop, but with an automatic counter (i.e. 2 vars instead of js 1) + tracked using Rich progress module
             frame_name = os.path.basename(path) # to print the raw file name instead of the full path (at 2 places)
@@ -156,7 +158,7 @@ def flag_clip(times, cutoff=CUTOFF, threads=NUM_THREADS, extra=EXTRA):
             max_safe_cos = cosine_sims[: len(SAFE_LABELS)].max().item()
 
             margin = max_suggestive_cos - max_safe_cos
-            prob = 1 / (1 + np.exp(-(feats[-1] @ W + B)))
+            prob = 1 / (1 + np.exp(-(feats[-1] @ W + B))) # pass frame's CLIP embedding through the trained logistic regression model
 
             is_candidate = prob >= cutoff
             if is_candidate:
