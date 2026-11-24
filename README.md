@@ -27,7 +27,7 @@ It was built for people who want to know where _such scenes_ are before watching
 
 > **AnimeGuard is currently a rough first-pass filter, not an exact detector.** It favors showing you a bit too much over missing a scene, so treat the output as a short list to skim, not as a final answer.
 
-## Table of Content
+## Table of Contents
 
 - [How it works](#how-it-works)
 - [Accuracy](#accuracy)
@@ -42,6 +42,7 @@ It was built for people who want to know where _such scenes_ are before watching
   - [Option A: the input/ folder](#option-a-the-input-folder)
   - [Option B: point at a file with --video](#option-b-point-at-a-file-with---video)
 - [Options](#options)
+- [Tested and rejected](#tested-and-rejected)
 - [Roadmap](#roadmap)
 - [License](#license)
 
@@ -175,9 +176,40 @@ The progress bar needs a real terminal (PowerShell, Terminal, etc.). In PyCharm'
 
 Run `python main.py --help` for the same list.
 
+## Tested and rejected
+
+### VLM Pass 2
+
+- The original plan was a fast, local tool with a vision-language model (VLM) as a Pass 2 to cut false alarms. I tested Qwen2.5-VL 32B, a fairly large open model.
+- On 46 manually labeled ranges (21 real, 25 false alarms), it kept 17 of the 21 real ones (81%) and dropped 11 of the 25 false alarms (44%).
+- My set targets were 90% and 50%. It didn't pass. A 0-10 score prompt did worse.
+- So, as expected, smaller models that normal setups can run are unlikely to do better (and this one needs a GPU far beyond a typical setup).
+- I didn't test cloud or paid models, since AnimeGuard is meant to be free and local.
+- The test set may also have affected the result: it was small and labeled by one person, so treat the numbers as rough.
+
+### Classifier tweaks
+
+None of these helped. Scores are mean average precision (how well genuine frames are ranked above false alarms, higher = better).
+
+- Smoothing the scores over 3 frames gave about the same precision and recall.
+- Adding the original CLIP scores as extras scored 0.49, against 0.50 without them.
+- More training shows stopped helping at about 10. On two unseen shows the score was 0.318 with 10 shows and 0.319 with 14.
+
+<details>
+<summary><h3>How AnimeGuard got here</h3></summary>
+
+1. **Straight to a vision-language model.** The first and simplest idea was to send raw frames directly to a local VLM and let it judge. On my CPU-only laptop, the 4B models I tried (including gemma3:4b and qwen3-vl:4b) took about 50-80+ seconds per frame. And when I checked the accuracy by eye, they got clothing and bare skin wrong. Smaller models were slightly faster, but worse accuracy.
+2. **CLIP margin rule.** Switched to CLIP, comparing each frame against sets of "suggestive" and "safe" text labels and flagging a frame only when the suggestive score wins by a margin. I first used show-specific labels from 1-2 shows, but then switched to generic labels. Adding extra safe labels by grouping false alarms into types cut the flagged frames from 76 (~10 genuine) to 27 (9 of those 10 kept) on one episode. I stopped adding safe labels because each one risked taking real frames with it (e.g. winged character labels, male character labels).
+3. **Near-duplicate frame removal.** I added it, then removed it in v1.1.0 since the output is now ranges instead of individual frames.
+4. **Trained embeddings classifier.** I expected it to be a second-stage filter after the CLIP margin rule, but it replaced the rule. On the shows it trained on (each held out in turn), precision went from 50% to 60% at the same recall. On shows it never saw, the gain was small (50% to 53% precision, 56% to 60% recall).
+5. **Classifier tweaks.** Smoothing, adding the old CLIP scores as helping features, and more training shows. None of them helped (see above).
+6. **VLM Pass.** Tested last, and rejected (see above).
+
+</details>
+
 ## Roadmap
 
-A heavier vision-language second pass to cut false positives further is being considered. A middle cutoff between the default and `--strict` is also planned.
+A middle cutoff between the default and `--strict` is planned.
 
 ## License
 
