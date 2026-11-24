@@ -12,3 +12,9 @@ vlm_pass2.py
 /output/
 /eval/blind/
 /eval/truth/
+*.mp4
+digest.txt
+sheet.jpg
+vlm_set.zip
+animeguard/pass2_model_14ep.npz
+animeguard/pass2_model_v1.1.0.npz
