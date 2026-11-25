@@ -69,8 +69,7 @@ Tested against scenes I labeled by hand. **Precision** is how many flagged range
 
 - On the training shows, the classifier gives fewer false alarms at the same recall. On unseen shows the improvement is small.
 - `--strict` gives a short, mostly correct list but misses a lot. Use it when you only want the clearest scenes.
-- The labels are one person's opinion, and borderline scenes count as scenes. The 3-show test is small, so treat those numbers as rough.
-- The labels are one person's opinion. Borderline scenes count, including shots where an exaggerated figure is drawn prominently, even without special framing/camera focus. The 3-show blind-test is also small, so treat those numbers as rough.
+- The labels are one person's opinion. Borderline scenes count, including shots where an exaggerated figure is drawn prominently, even without special framing or camera focus. The 3-show blind-test is also small, so treat those numbers as rough.
 
 ## Known Limitations & Technical Trade-offs
 
